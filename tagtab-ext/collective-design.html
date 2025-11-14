@@ -539,7 +539,77 @@
     </footer>
 
     <script>
-        // Add interactivity for TagTab
+        // Load actual TagTab tags and replace category buttons
+        async function loadTagTabTags() {
+            try {
+                // Try to get tags from extension storage
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                    const result = await chrome.storage.local.get(['tags']);
+                    const tags = result.tags || {};
+                    const tagNames = Object.keys(tags);
+
+                    if (tagNames.length > 0) {
+                        updateCategoryButtons(['All', ...tagNames]);
+                        return;
+                    }
+                }
+
+                // Fallback to default TagTab tags if no storage access
+                const defaultTags = [
+                    'All', 'Development', 'Learning', 'Social', 'Shopping', 'News'
+                ];
+                updateCategoryButtons(defaultTags);
+
+            } catch (error) {
+                console.log('Could not access extension storage, using defaults');
+                // Fallback to default tags
+                const defaultTags = [
+                    'All', 'Development', 'Learning', 'Social', 'Shopping', 'News'
+                ];
+                updateCategoryButtons(defaultTags);
+            }
+        }
+
+        function updateCategoryButtons(tagNames) {
+            const categoryNav = document.querySelector('.category-nav');
+            if (!categoryNav) return;
+
+            // Clear existing buttons
+            categoryNav.innerHTML = '';
+
+            // Create new buttons for actual tags
+            tagNames.forEach((tagName, index) => {
+                const btn = document.createElement('a');
+                btn.href = '#';
+                btn.className = 'category-btn';
+                btn.textContent = tagName;
+
+                // Make "All" active by default
+                if (tagName === 'All') {
+                    btn.classList.add('active');
+                }
+
+                // Add click handler
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter functionality
+                    console.log('Filtering by tag:', tagName);
+                    // This would integrate with TagTab's filter system
+                });
+
+                categoryNav.appendChild(btn);
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTagTabTags();
+        });
+
+        // Add other interactivity for TagTab
         document.querySelector('.email-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const searchTerm = this.querySelector('input').value;
@@ -547,19 +617,6 @@
                 alert('Searching for: "' + searchTerm + '"');
                 // This would integrate with TagTab's search functionality
             }
-        });
-
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                // Filter functionality
-                const category = this.textContent;
-                console.log('Filtering by category:', category);
-                // This would integrate with TagTab's filter system
-            });
         });
 
         // Action buttons for extension features
@@ -573,13 +630,6 @@
             e.preventDefault();
             // Open settings
             window.location.href = 'settings.html';
-        });
-
-        // Navigation links
-        document.querySelectorAll('.nav-menu a[href="settings.html"]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Settings link already has correct href
-            });
         });
     </script>
 </body>
