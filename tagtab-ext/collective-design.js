@@ -1,7 +1,7 @@
 // TagTab functionality implementation for collective-design.html
-let allSavedPages = [];
-let allTags = [];
-let currentFilter = 'All';
+// Using exact same functions as master branch pages.js
+
+let currentTag = null;
 
 // Utility functions from pages.js
 function fmtDate(iso) {
@@ -18,418 +18,374 @@ function fmtDateOnly(iso) {
     } catch { return ""; }
 }
 
-// Fetch tags using chrome runtime messaging
-async function fetchTags() {
-    try {
-        const res = await chrome.runtime.sendMessage({ type: "getTags" });
-        return res.ok ? res.tags : [];
-    } catch (error) {
-        console.error('Error fetching tags:', error);
-        return [];
-    }
+function groupByDate(items) {
+    const groups = {};
+
+    items.forEach(item => {
+        const dateKey = fmtDateOnly(item.savedAt) || 'Unknown Date';
+        if (!groups[dateKey]) {
+            groups[dateKey] = [];
+        }
+        groups[dateKey].push(item);
+    });
+
+    // Sort each group by time (newest first within each date)
+    Object.keys(groups).forEach(dateKey => {
+        groups[dateKey].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+    });
+
+    // Sort date groups by date (newest first)
+    const sortedGroups = {};
+    Object.keys(groups)
+        .sort((a, b) => {
+            if (a === 'Unknown Date') return 1;
+            if (b === 'Unknown Date') return -1;
+            return new Date(b) - new Date(a);
+        })
+        .forEach(key => {
+            sortedGroups[key] = groups[key];
+        });
+
+    return sortedGroups;
 }
 
-// Fetch items for a specific tag
-async function fetchItems(tagPath) {
-    try {
-        const res = await chrome.runtime.sendMessage({
-            type: "getItems",
-            tag: tagPath
-        });
-        return res.ok ? res.items : [];
-    } catch (error) {
-        console.error('Error fetching items for tag:', tagPath, error);
-        return [];
-    }
+// Fetch tags using chrome runtime messaging (exact same as master)
+async function fetchTags() {
+    const res = await chrome.runtime.sendMessage({ type: "getTags" });
+    return res.ok ? res.tags : [];
+}
+
+// Fetch items for a specific tag (exact same as master)
+async function fetchItems(tag) {
+    const res = await chrome.runtime.sendMessage({ type: "getTagData", tag });
+    return res.ok ? res.items : [];
 }
 
 function getTagDisplayName(tagInfo) {
     if (typeof tagInfo === 'string') {
-        return tagInfo;
+        return tagInfo; // Backward compatibility
     }
+
     const path = tagInfo.path;
-    const segments = path.split('/');
-    return segments[segments.length - 1];
+    const depth = tagInfo.depth || 0;
+
+    // For special tags, return as-is
+    if (path.startsWith('📁') || path.startsWith('📂')) {
+        return path;
+    }
+
+    // Extract just the tag name for display
+    const lastSlash = path.lastIndexOf('/');
+    const tagName = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
+
+    return tagName;
 }
 
 function getTagPath(tagInfo) {
     return typeof tagInfo === 'string' ? tagInfo : tagInfo.path;
 }
 
-// Load and display TagTab data
-async function loadTagTabData() {
-    try {
-        // Show loading message
-        showMessage('Loading your tags...');
-        console.log('🚀 Starting loadTagTabData...');
+// Main render function adapted from master branch
+async function render(tag) {
+    const categoryNav = document.querySelector('.category-nav');
+    const mainContent = document.querySelector('.main-content');
 
-        // Fetch all tags
-        allTags = await fetchTags();
-        console.log('📦 Loaded tags:', allTags);
-        console.log('📊 Tags count:', allTags.length);
-
-        if (allTags.length === 0) {
-            console.log('⚠️ No tags found, showing empty state');
-            showMessage('No saved pages yet. Start saving tabs to see them here!');
-            return;
-        }
-
-        // Load category buttons
-        console.log('🔘 Loading category buttons...');
-        await loadCategoryButtons();
-
-        // Load all saved pages
-        console.log('📄 Loading all saved pages...');
-        await loadAllSavedPages();
-        console.log('💾 All saved pages loaded:', allSavedPages);
-        console.log('📈 Total pages count:', allSavedPages.length);
-
-        // Display pages
-        console.log('🎨 Displaying filtered pages...');
-        displayFilteredPages();
-
-    } catch (error) {
-        console.error('💥 Error loading TagTab data:', error);
-        showMessage('Error loading data. Make sure you\'re using this in the extension context.');
+    if (!categoryNav || !mainContent) {
+        console.error('Required elements not found');
+        return;
     }
+
+    categoryNav.innerHTML = "";
+    const tags = await fetchTags();
+
+    if (!tags.length) {
+        showMessage('No saved pages yet. Start saving tabs to see them here!');
+        mainContent.innerHTML = '<div class="empty-state"><h3>No saved pages yet</h3><p>Start saving tabs to see them here!</p></div>';
+        return;
+    }
+
+    // Build tag navigation (category-nav)
+    await loadCategoryButtons(tags, tag);
+
+    // Set default tag if none selected
+    if (!tag) tag = getTagPath(tags[0]);
+    currentTag = tag;
+
+    // Fetch and display items for selected tag
+    const items = await fetchItems(tag);
+
+    // Clear main content
+    mainContent.innerHTML = '';
+
+    // Re-add the featured item (our preview/summary card)
+    const featuredItem = document.querySelector('.featured-item');
+    if (featuredItem) {
+        mainContent.appendChild(featuredItem.cloneNode(true));
+    }
+
+    // Create controls section
+    const controls = createControls(tag);
+    mainContent.appendChild(controls);
+
+    if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = '<h3>No pages in this tag</h3><p>Start saving pages to see them here!</p>';
+        mainContent.appendChild(empty);
+        return;
+    }
+
+    // Create grouped list of items (exact same as master)
+    const groupedItems = groupByDate(items);
+    const container = document.createElement("div");
+    container.className = "saved-pages-container";
+
+    Object.entries(groupedItems).forEach(([dateKey, dateItems]) => {
+        // Create date header
+        const dateHeader = document.createElement("div");
+        dateHeader.className = "date-group-header";
+        dateHeader.textContent = dateKey;
+        container.appendChild(dateHeader);
+
+        // Create list for this date
+        const list = document.createElement("div");
+        list.className = "pages-list";
+
+        dateItems.forEach((it, dateIdx) => {
+            // Find the actual index in the original items array for proper deletion
+            const actualIdx = items.findIndex(item =>
+                item.url === it.url && item.savedAt === it.savedAt
+            );
+
+            const row = createPageItem(it, actualIdx, tag);
+            list.appendChild(row);
+        });
+
+        container.appendChild(list);
+    });
+
+    mainContent.appendChild(container);
+
+    // Update featured item title
+    updateFeaturedItemTitle(tag, items.length);
 }
 
-async function loadCategoryButtons() {
+async function loadCategoryButtons(tags, selectedTag) {
     const categoryNav = document.querySelector('.category-nav');
     if (!categoryNav) return;
 
     // Clear existing content
     categoryNav.innerHTML = '';
 
-    // Add "All" button
-    const allBtn = document.createElement('a');
-    allBtn.href = '#';
-    allBtn.className = 'category-btn active';
-    allBtn.textContent = 'All';
-    allBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        filterByTag('All');
-    });
-    categoryNav.appendChild(allBtn);
-
-    // Add button for each tag
-    allTags.forEach(tagInfo => {
+    // Add button for each tag (including special tags)
+    tags.forEach(tagInfo => {
         const tagPath = getTagPath(tagInfo);
-        if (!tagPath.startsWith('📁') && !tagPath.startsWith('📂')) {
-            const btn = document.createElement('a');
-            btn.href = '#';
-            btn.className = 'category-btn';
-            btn.textContent = getTagDisplayName(tagInfo);
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                filterByTag(tagPath);
-            });
-            categoryNav.appendChild(btn);
-        }
-    });
-}
+        const displayName = getTagDisplayName(tagInfo);
 
-async function loadAllSavedPages() {
-    console.log('🔄 Starting loadAllSavedPages...');
-    allSavedPages = [];
+        const btn = document.createElement('a');
+        btn.href = '#';
+        btn.className = 'category-btn';
+        btn.textContent = displayName;
 
-    // Fetch items from all tags
-    for (const tagInfo of allTags) {
-        const tagPath = getTagPath(tagInfo);
-        console.log(`📂 Fetching items for tag: ${tagPath}`);
-        const items = await fetchItems(tagPath);
-        console.log(`📊 Items found for ${tagPath}:`, items.length, items);
-
-        items.forEach(item => {
-            item.sourceTag = tagPath;
-            item.displayTag = getTagDisplayName(tagInfo);
-        });
-        allSavedPages = allSavedPages.concat(items);
-        console.log(`📈 Total pages so far: ${allSavedPages.length}`);
-    }
-
-    console.log('🔗 All pages before deduplication:', allSavedPages);
-
-    // Remove duplicates based on URL
-    const uniquePages = [];
-    const seenUrls = new Set();
-    for (const page of allSavedPages) {
-        if (!seenUrls.has(page.url)) {
-            seenUrls.add(page.url);
-            uniquePages.push(page);
-        }
-    }
-
-    // Sort by most recent first
-    allSavedPages = uniquePages.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
-    console.log('✅ Final deduplicated and sorted pages:', allSavedPages);
-}
-
-function filterByTag(tagFilter) {
-    currentFilter = tagFilter;
-
-    // Update active button
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent === tagFilter || (tagFilter === 'All' && btn.textContent === 'All')) {
+        // Mark as active if this is the selected tag
+        if (tagPath === selectedTag) {
             btn.classList.add('active');
         }
-    });
 
-    // Display filtered pages
-    displayFilteredPages();
-}
+        // Add special styling for special tags
+        if (tagPath === "📁 All") {
+            btn.setAttribute("data-special", "all");
+        } else if (tagPath === "📂 Other") {
+            btn.setAttribute("data-special", "other");
+        }
 
-function displayFilteredPages() {
-    console.log('🎯 displayFilteredPages called');
-    const mainContent = document.querySelector('.main-content');
-    if (!mainContent) {
-        console.error('❌ No .main-content element found');
-        return;
-    }
-    console.log('✅ Found main content element');
-
-    // Filter pages
-    let filteredPages = allSavedPages;
-    if (currentFilter !== 'All') {
-        filteredPages = allSavedPages.filter(page => page.sourceTag === currentFilter);
-        console.log(`🔍 Filtered to ${filteredPages.length} pages for tag: ${currentFilter}`);
-    } else {
-        console.log(`📄 Showing all ${filteredPages.length} pages`);
-    }
-
-    // Update item title to show count
-    const itemTitle = document.querySelector('.item-title');
-    if (itemTitle) {
-        const count = filteredPages.length;
-        const filterText = currentFilter === 'All' ? 'All Saved Pages' : currentFilter;
-        itemTitle.textContent = `${filterText} (${count} page${count !== 1 ? 's' : ''})`;
-        console.log(`📝 Updated title: ${itemTitle.textContent}`);
-    }
-
-    // Clear and update main content with actual pages
-    console.log('🎨 Calling renderSavedPagesList with', filteredPages.length, 'pages');
-    renderSavedPagesList(filteredPages, mainContent);
-}
-
-function renderSavedPagesList(pages, mainContent) {
-    console.log('🖼️ renderSavedPagesList called with', pages.length, 'pages');
-
-    // Clear existing content but keep the featured item
-    const featuredItem = mainContent.querySelector('.featured-item');
-    console.log('🎯 Featured item found:', !!featuredItem);
-
-    // Clear main content
-    mainContent.innerHTML = '';
-    console.log('🧹 Cleared main content');
-
-    // Re-add the featured item (our preview/summary card)
-    if (featuredItem) {
-        mainContent.appendChild(featuredItem);
-        console.log('✅ Re-added featured item');
-    }
-
-    // Create pages container
-    const pagesContainer = document.createElement('div');
-    pagesContainer.className = 'saved-pages-container';
-    console.log('📦 Created pages container');
-
-    if (pages.length === 0) {
-        console.log('⚠️ No pages to display, showing empty state');
-        pagesContainer.innerHTML = `
-            <div class="empty-state">
-                <h3>No pages found</h3>
-                <p>No saved pages match the current filter.</p>
-            </div>
-        `;
-        mainContent.appendChild(pagesContainer);
-        console.log('📋 Added empty state to main content');
-        return;
-    }
-
-    // Group pages by date
-    console.log('📅 Grouping pages by date...');
-    const groupedPages = groupPagesByDate(pages);
-    console.log('📊 Grouped pages:', groupedPages);
-
-    // Create page items grouped by date
-    Object.entries(groupedPages).forEach(([date, datePages]) => {
-        console.log(`📆 Processing date group: ${date} with ${datePages.length} pages`);
-
-        // Add date header
-        const dateHeader = document.createElement('div');
-        dateHeader.className = 'date-group-header';
-        dateHeader.textContent = date;
-        pagesContainer.appendChild(dateHeader);
-        console.log(`📌 Added date header: ${date}`);
-
-        // Add pages for this date
-        const pagesList = document.createElement('div');
-        pagesList.className = 'pages-list';
-
-        datePages.forEach((page, index) => {
-            console.log(`🔗 Creating page item ${index + 1}:`, page.title);
-            const pageItem = createPageItem(page);
-            pagesList.appendChild(pageItem);
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            render(tagPath);
         });
 
-        pagesContainer.appendChild(pagesList);
-        console.log(`✅ Added ${datePages.length} pages for ${date}`);
+        categoryNav.appendChild(btn);
     });
-
-    mainContent.appendChild(pagesContainer);
-    console.log('🎉 Added pages container to main content');
-    console.log('📍 Final main content HTML:', mainContent.innerHTML.substring(0, 200) + '...');
 }
 
-function groupPagesByDate(pages) {
-    const groups = {};
+function createControls(tag) {
+    const controls = document.createElement("div");
+    controls.className = "controls";
+    controls.style.justifyContent = "flex-end";
 
-    pages.forEach(page => {
-        const date = fmtDateOnly(page.savedAt) || 'Unknown Date';
-        if (!groups[date]) {
-            groups[date] = [];
-        }
-        groups[date].push(page);
+    const restoreAllBtn = document.createElement("button");
+    restoreAllBtn.innerHTML = "🔄";
+    restoreAllBtn.title = "Restore all";
+    restoreAllBtn.addEventListener('click', async () => {
+        await chrome.runtime.sendMessage({ type: "restoreAll", tag });
     });
 
-    // Sort each group by time (newest first)
-    Object.keys(groups).forEach(date => {
-        groups[date].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
-    });
+    const deleteTagBtn = document.createElement("button");
+    deleteTagBtn.innerHTML = "🗑️";
 
-    return groups;
+    // Handle special tags differently (exact same as master)
+    if (tag === "📁 All") {
+        deleteTagBtn.title = "Clear all tags";
+        deleteTagBtn.addEventListener('click', async () => {
+            if (!confirm(`Delete all saved tabs from all tags? This cannot be undone!`)) return;
+            // Clear all regular tags
+            const allTags = await fetchTags();
+            for (const t of allTags) {
+                if (t !== "📁 All" && t !== "📂 Other") {
+                    await chrome.runtime.sendMessage({ type: "deleteTag", tag: t });
+                }
+            }
+            // Clear Other tag too
+            await chrome.runtime.sendMessage({ type: "deleteTag", tag: "Other" });
+            render(null);
+        });
+    } else if (tag === "📂 Other") {
+        deleteTagBtn.title = "Clear Other";
+        deleteTagBtn.addEventListener('click', async () => {
+            if (!confirm(`Clear all unclassified tabs in "Other"?`)) return;
+            await chrome.runtime.sendMessage({ type: "deleteTag", tag });
+            render(null);
+        });
+    } else {
+        deleteTagBtn.title = "Delete tag";
+        deleteTagBtn.addEventListener('click', async () => {
+            if (!confirm(`Delete all items in "${tag}"?`)) return;
+            await chrome.runtime.sendMessage({ type: "deleteTag", tag });
+            render(null);
+        });
+    }
+
+    // Add sync conditions button for regular tags only
+    let syncConditionsBtn = null;
+    if (tag !== "📁 All" && tag !== "📂 Other") {
+        syncConditionsBtn = document.createElement("button");
+        syncConditionsBtn.innerHTML = "⚡";
+        syncConditionsBtn.title = "Sync conditions";
+        syncConditionsBtn.addEventListener('click', async () => {
+            if (!confirm(`Sync conditions for "${tag}"? This will import matching pages from other tags based on the current classification rules.`)) return;
+            const result = await chrome.runtime.sendMessage({ type: "syncTagConditions", tag });
+            if (result.ok) {
+                alert(`Synced ${result.imported} pages to "${tag}"`);
+                render(tag); // Refresh the view
+            } else {
+                alert('Sync failed: ' + (result.error || 'Unknown error'));
+            }
+        });
+    }
+
+    if (syncConditionsBtn) {
+        controls.append(restoreAllBtn, deleteTagBtn, syncConditionsBtn);
+    } else {
+        controls.append(restoreAllBtn, deleteTagBtn);
+    }
+
+    return controls;
 }
 
-function createPageItem(page) {
-    const item = document.createElement('div');
-    item.className = 'page-item';
+function createPageItem(item, actualIdx, tag) {
+    const row = document.createElement("div");
+    row.className = "page-item";
 
-    // Format save time
-    const saveTime = new Date(page.savedAt);
-    const timeStr = saveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const icon = document.createElement("img");
+    icon.src = item.favIconUrl || "icons/icon16.png";
+    icon.alt = "Favicon";
 
-    // Truncate title if too long
-    const title = page.title.length > 60 ? page.title.substring(0, 60) + '...' : page.title;
+    const info = document.createElement("div");
+    info.className = "page-item-content";
 
-    // Extract domain from URL
+    const title = document.createElement("div");
+    title.className = "page-item-title";
+    const link = document.createElement("a");
+    link.href = item.url;
+    link.target = "_blank";
+    link.textContent = item.title || item.url;
+    title.appendChild(link);
+
+    const meta = document.createElement("div");
+    meta.className = "page-item-meta";
+
+    // Show just time for items grouped by date
+    const timeOnly = new Date(item.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     let domain = '';
     try {
-        domain = new URL(page.url).hostname;
+        domain = new URL(item.url).hostname;
     } catch (e) {
-        domain = page.url;
+        domain = item.url;
     }
 
-    const defaultFavicon = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
-
-    item.innerHTML = `
-        <div class="page-item-icon">
-            <img src="${page.favIconUrl || defaultFavicon}" alt="Favicon">
-        </div>
-        <div class="page-item-content">
-            <div class="page-item-title">${title}</div>
-            <div class="page-item-meta">
-                <span class="page-item-domain">${domain}</span>
-                <span class="page-item-tag">${page.displayTag}</span>
-                <span class="page-item-time">${timeStr}</span>
-            </div>
-        </div>
-        <div class="page-item-actions">
-            <button class="page-action-btn open-btn" data-url="${page.url}">Open</button>
-            <button class="page-action-btn delete-btn" data-url="${page.url}" data-tag="${page.sourceTag}">Delete</button>
-        </div>
+    meta.innerHTML = `
+        <span class="page-item-domain">${domain}</span>
+        <span class="page-item-time">${timeOnly}</span>
     `;
 
-    // Add error handling for favicon
-    const favicon = item.querySelector('.page-item-icon img');
-    favicon.addEventListener('error', () => {
-        favicon.src = defaultFavicon;
+    // For "All" view, show the source tag
+    if (tag === "📁 All" && item.sourceTag) {
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'page-item-tag';
+        tagSpan.textContent = getTagDisplayName(item.sourceTag);
+        meta.appendChild(tagSpan);
+    }
+
+    info.append(title, meta);
+
+    const actions = document.createElement("div");
+    actions.className = "page-item-actions";
+
+    const restoreBtn = document.createElement("button");
+    restoreBtn.className = "page-action-btn open-btn";
+    restoreBtn.textContent = "Restore";
+    restoreBtn.addEventListener('click', () => {
+        // Open in new tab
+        window.open(item.url, '_blank');
+        // Also send restore message for any cleanup/tracking
+        chrome.runtime.sendMessage({ type: "restoreItem", item: item });
     });
 
-    // Add click handler to open page
-    const openBtn = item.querySelector('.open-btn');
-    openBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        chrome.tabs.create({ url: page.url });
+    const delBtn = document.createElement("button");
+    delBtn.className = "page-action-btn delete-btn";
+    delBtn.textContent = "Delete";
+    delBtn.addEventListener('click', async () => {
+        try {
+            // For "All" view, use item identity to delete from wherever it exists
+            if (tag === "📁 All") {
+                await chrome.runtime.sendMessage({
+                    type: "deleteItemById",
+                    url: item.url,
+                    savedAt: item.savedAt
+                });
+            } else {
+                // Regular delete for specific tag views
+                await chrome.runtime.sendMessage({
+                    type: "deleteItem",
+                    tag,
+                    index: actualIdx
+                });
+            }
+            render(tag); // Refresh the view
+        } catch (error) {
+            console.error('Error deleting item:', error);
+        }
     });
+
+    actions.append(restoreBtn, delBtn);
+    row.append(icon, info, actions);
 
     // Add click handler for main item (also opens page)
-    const content = item.querySelector('.page-item-content');
-    content.addEventListener('click', (e) => {
+    info.addEventListener('click', (e) => {
         e.preventDefault();
-        chrome.tabs.create({ url: page.url });
+        chrome.runtime.sendMessage({ type: "restoreItem", item: item });
     });
-    content.style.cursor = 'pointer';
+    info.style.cursor = 'pointer';
 
-    return item;
+    return row;
 }
 
-function updatePreviewImage(pages) {
-    const previewImg = document.querySelector('.item-preview img');
-    if (!previewImg || pages.length === 0) return;
-
-    // Create SVG showing page cards
-    const svgContent = generatePageCardsSVG(pages);
-    const dataUrl = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
-    previewImg.src = dataUrl;
-}
-
-function generatePageCardsSVG(pages) {
-    const maxPages = Math.min(pages.length, 8);
-    let svgContent = `<svg width='400' height='300' viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'>
-        <rect width='400' height='300' fill='#101211'/>
-        <g transform='translate(20, 20)'>`;
-
-    for (let i = 0; i < maxPages; i++) {
-        const page = pages[i];
-        const y = i * 32;
-        const cardColor = i % 3 === 0 ? '#E9EBEA' : i % 3 === 1 ? '#E8E5FF' : '#D4D0F0';
-        const textColor = '#101211';
-
-        // Truncate title if too long
-        const title = page.title.length > 35 ? page.title.substring(0, 35) + '...' : page.title;
-
-        svgContent += `
-            <rect x='0' y='${y}' width='360' height='28' fill='${cardColor}' rx='14'/>
-            <text x='15' y='${y + 18}' font-family='Inter, sans-serif' font-size='12' fill='${textColor}'>${title}</text>`;
-    }
-
-    if (pages.length > maxPages) {
-        svgContent += `<text x='180' y='${maxPages * 32 + 20}' text-anchor='middle' font-family='Inter, sans-serif' font-size='11' fill='#888'>+${pages.length - maxPages} more pages</text>`;
-    }
-
-    svgContent += `</g></svg>`;
-    return svgContent;
-}
-
-function searchPages(query) {
-    if (!query.trim()) {
-        displayFilteredPages();
-        return;
-    }
-
-    const searchTerm = query.toLowerCase();
-    const searchResults = allSavedPages.filter(page =>
-        page.title.toLowerCase().includes(searchTerm) ||
-        page.url.toLowerCase().includes(searchTerm) ||
-        (page.displayTag && page.displayTag.toLowerCase().includes(searchTerm))
-    );
-
-    // Update item title to show search results count
+function updateFeaturedItemTitle(tag, itemCount) {
     const itemTitle = document.querySelector('.item-title');
     if (itemTitle) {
-        const count = searchResults.length;
-        itemTitle.textContent = `Search: "${query}" (${count} result${count !== 1 ? 's' : ''})`;
+        const displayName = getTagDisplayName(tag);
+        itemTitle.textContent = `${displayName} (${itemCount} page${itemCount !== 1 ? 's' : ''})`;
     }
-
-    // Display search results in main content
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        renderSavedPagesList(searchResults, mainContent);
-    }
-
-    // Also update preview image
-    updatePreviewImage(searchResults.slice(0, 10));
 }
 
 function showMessage(message) {
@@ -493,7 +449,7 @@ function setupSearch() {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're in extension context
     if (typeof chrome !== 'undefined' && chrome.runtime) {
-        loadTagTabData();
+        render(null); // Start with no tag selected (will show first tag)
     } else {
         showMessage('Open this page in your Chrome extension to see your saved tabs');
     }
