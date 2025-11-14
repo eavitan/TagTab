@@ -286,20 +286,21 @@ function createPageItem(item, actualIdx, tag) {
     const row = document.createElement("div");
     row.className = "page-item";
 
+    // Create icon container (minimalist design)
+    const iconContainer = document.createElement("div");
+    iconContainer.className = "page-item-icon";
+
     const icon = document.createElement("img");
     icon.src = item.favIconUrl || "icons/icon16.png";
     icon.alt = "Favicon";
+    iconContainer.appendChild(icon);
 
     const info = document.createElement("div");
     info.className = "page-item-content";
 
     const title = document.createElement("div");
     title.className = "page-item-title";
-    const link = document.createElement("a");
-    link.href = item.url;
-    link.target = "_blank";
-    link.textContent = item.title || item.url;
-    title.appendChild(link);
+    title.textContent = item.title || item.url;
 
     const meta = document.createElement("div");
     meta.className = "page-item-meta";
@@ -333,7 +334,8 @@ function createPageItem(item, actualIdx, tag) {
 
     const restoreBtn = document.createElement("button");
     restoreBtn.className = "page-action-btn open-btn";
-    restoreBtn.textContent = "Restore";
+    restoreBtn.innerHTML = "🔄";
+    restoreBtn.title = "Restore";
     restoreBtn.addEventListener('click', () => {
         // Open in new tab
         window.open(item.url, '_blank');
@@ -343,7 +345,8 @@ function createPageItem(item, actualIdx, tag) {
 
     const delBtn = document.createElement("button");
     delBtn.className = "page-action-btn delete-btn";
-    delBtn.textContent = "Delete";
+    delBtn.innerHTML = "🗑️";
+    delBtn.title = "Delete";
     delBtn.addEventListener('click', async () => {
         try {
             // For "All" view, use item identity to delete from wherever it exists
@@ -368,7 +371,7 @@ function createPageItem(item, actualIdx, tag) {
     });
 
     actions.append(restoreBtn, delBtn);
-    row.append(icon, info, actions);
+    row.append(iconContainer, info, actions);
 
     // Add click handler for main item (also opens page)
     info.addEventListener('click', (e) => {
