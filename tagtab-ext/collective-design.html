@@ -102,28 +102,33 @@
         }
 
         .email-input {
-            padding: 12px 24px;
-            border: 1px solid rgba(233, 235, 234, 0.15);
-            border-radius: 32px;
-            background: rgba(233, 235, 234, 0.08);
+            padding: 14px 24px;
+            border: 1px solid rgba(233, 235, 234, 0.2);
+            border-radius: 28px;
+            background: rgba(233, 235, 234, 0.04);
             color: #E9EBEA;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 400;
             min-width: 280px;
-            backdrop-filter: blur(10px);
             letter-spacing: -0.02em;
+            outline: none;
         }
 
         .email-input::placeholder {
-            color: rgba(233, 235, 234, 0.5);
+            color: rgba(233, 235, 234, 0.4);
+        }
+
+        .email-input:focus {
+            border-color: rgba(233, 235, 234, 0.3);
+            background: rgba(233, 235, 234, 0.06);
         }
 
         .submit-btn {
-            padding: 12px 24px;
-            background: #E9EBEA;
-            color: #101211;
-            border: none;
-            border-radius: 32px;
+            padding: 14px 24px;
+            background: rgba(233, 235, 234, 0.15);
+            color: #E9EBEA;
+            border: 1px solid rgba(233, 235, 234, 0.2);
+            border-radius: 28px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
@@ -132,7 +137,7 @@
         }
 
         .submit-btn:hover {
-            background: #f0f0f0;
+            background: rgba(233, 235, 234, 0.25);
             transform: translateY(-1px);
         }
 
@@ -237,23 +242,26 @@
         }
 
         .buy-btn {
-            background: #E9EBEA;
+            background: rgba(233, 235, 234, 0.9);
             color: #101211;
+            border: 1px solid rgba(233, 235, 234, 0.2);
         }
 
         .buy-btn:hover {
-            opacity: 0.9;
+            background: #E9EBEA;
             transform: translateY(-1px);
         }
 
         .made-btn {
-            background: rgba(233, 235, 234, 0.1);
+            background: rgba(16, 18, 17, 0.8);
             color: #E9EBEA;
-            border: 1px solid rgba(233, 235, 234, 0.2);
+            border: 1px solid rgba(233, 235, 234, 0.15);
+            backdrop-filter: blur(10px);
         }
 
         .made-btn:hover {
-            background: rgba(233, 235, 234, 0.2);
+            background: rgba(16, 18, 17, 0.9);
+            transform: translateY(-1px);
         }
 
         /* Footer */
