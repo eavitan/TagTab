@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test Long URL Display</title>
+    <link rel="stylesheet" href="pages.css">
+    <style>
+        .test-container {
+            max-width: 500px;
+            margin: 20px auto;
+            border: 2px solid red;
+            padding: 10px;
+        }
+        .test-note {
+            background: #ffffcc;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-note">
+            <strong>Test:</strong> This container has a red border and max-width of 500px.
+            Long URLs should NOT break out of this container.
+        </div>
+
+        <div class="grouped-list">
+            <div class="date-header">10/22/2025</div>
+            <div class="list">
+                <!-- Test item with extremely long URL -->
+                <div class="item">
+                    <img src="icons/icon16.png" alt="">
+                    <div class="grow">
+                        <div class="title">
+                            <a href="#" target="_blank">Very Long URL Test Page Title That Should Truncate</a>
+                        </div>
+                        <div class="muted">
+                            https://search.google.com/search-console/performance/search-analytics?resource_id=sc-domain%3Actoisraeltours.com&hl=en&breakdown=query&metric=CLICKS&date_range=LAST_28_DAYS&query_type=WEB&sort_column=CLICKS&sort_direction=DESCENDING&page_size=25&query=very+long+query+parameter+that+should+wrap+properly+and+not+overflow+the+container+boundaries  •  9:02 PM  •  Other
+                        </div>
+                    </div>
+                    <button>Restore</button>
+                    <button>Delete</button>
+                </div>
+
+                <!-- Test item with normal URL -->
+                <div class="item">
+                    <img src="icons/icon16.png" alt="">
+                    <div class="grow">
+                        <div class="title">
+                            <a href="#" target="_blank">Normal URL Test</a>
+                        </div>
+                        <div class="muted">
+                            https://github.com/user/repo  •  8:45 PM  •  Development
+                        </div>
+                    </div>
+                    <button>Restore</button>
+                    <button>Delete</button>
+                </div>
+
+                <!-- Test item with another very long URL -->
+                <div class="item">
+                    <img src="icons/icon16.png" alt="">
+                    <div class="grow">
+                        <div class="title">
+                            <a href="#" target="_blank">Another Long URL Test</a>
+                        </div>
+                        <div class="muted">
+                            https://verylongdomainname.example.com/very/long/path/with/many/segments/and/more/segments/that/keeps/going/and/going/and/going/until/it/becomes/ridiculously/long/file.html?param1=value1&param2=value2&param3=value3&param4=value4&param5=value5  •  7:30 PM  •  Other
+                        </div>
+                    </div>
+                    <button>Restore</button>
+                    <button>Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin: 20px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+        <h3>Expected Behavior:</h3>
+        <ul>
+            <li>✅ No horizontal scrolling</li>
+            <li>✅ All content stays within red border</li>
+            <li>✅ Long URLs wrap to multiple lines (max 2 lines)</li>
+            <li>✅ Very long URLs get truncated with "..." if needed</li>
+            <li>✅ Buttons remain visible and clickable</li>
+            <li>✅ No text overflows the container</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>TagTab</title>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>TagTab</h1>
+      <a id="openManager" href="pages.html" target="_blank" title="Open Manager">Manage</a>
+    </header>
+    <div id="tags"></div>
+    <button id="createNew">+ Create new tag</button>
+    <button id="autoClassify">🤖 Auto-classify tabs</button>
+    <div class="foot">
+      <label><input type="checkbox" id="allWindows"> Capture all windows</label>
+      <a href="settings.html" target="_blank" class="settings-link">Settings</a>
+    </div>
+    <div id="toast" hidden></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

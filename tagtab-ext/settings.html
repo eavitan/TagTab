@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="settings.css" />
+  <title>TagTab Settings</title>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="icons/icon32.png" width="20" height="20" alt=""/>
+      <h1>TagTab Settings</h1>
+      <a href="pages.html" class="back-btn">← Back to Tags</a>
+    </header>
+
+    <nav class="settings-nav">
+      <button class="tab-btn active" data-tab="general">General</button>
+      <button class="tab-btn" data-tab="classification">Classification</button>
+      <button class="tab-btn" data-tab="tags">Tag Settings</button>
+    </nav>
+
+    <main class="settings-content">
+      <!-- General Settings -->
+      <section id="general-tab" class="tab-content active">
+        <h2>General Settings</h2>
+
+        <div class="setting-group">
+          <h3>Restore Behavior</h3>
+          <label>
+            <input type="radio" name="defaultRestoreMode" value="close">
+            <span>Restore and close (remove from saved list)</span>
+          </label>
+          <label>
+            <input type="radio" name="defaultRestoreMode" value="keep">
+            <span>Restore and keep (keep in saved list)</span>
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <h3>Page Behavior</h3>
+          <label>
+            <input type="checkbox" id="enableNewTabOverride">
+            <span>Use TagTab as new tab page</span>
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <h3>Classification</h3>
+          <label>
+            <input type="checkbox" id="enableClassification">
+            <span>Enable automatic tab classification</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Classification Settings -->
+      <section id="classification-tab" class="tab-content">
+        <h2>Classification Rules</h2>
+
+        <div class="setting-group">
+          <div class="classification-header">
+            <h3>Auto-Classification Rules</h3>
+            <button id="resetRules" class="btn-secondary">Reset to Defaults</button>
+          </div>
+
+          <div id="classificationRules">
+            <!-- Rules will be populated by JavaScript -->
+          </div>
+
+          <div class="info-section">
+            <p><strong>Note:</strong> To add or edit classification rules for specific tags, go to the <strong>Tag Settings</strong> tab and use the "Edit Rules" button for each tag.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tag Settings -->
+      <section id="tags-tab" class="tab-content">
+        <h2>Tag Settings</h2>
+
+        <div class="setting-group">
+          <h3>Create Tag</h3>
+          <div class="form-row">
+            <select id="parentTagSelect">
+              <option value="">No parent (create root tag)</option>
+            </select>
+            <input type="text" id="subTagName" placeholder="Tag name" />
+          </div>
+          <p class="form-help">Select a parent to create a sub-tag, or leave empty to create a new root tag.</p>
+
+          <div class="classification-form">
+            <h4>Classification Rules (Optional)</h4>
+            <div id="conditionsBuilder">
+              <div class="condition-group" data-group-id="0">
+                <div class="group-header">
+                  <span class="group-label">Rule Group</span>
+                  <select class="group-operator">
+                    <option value="AND">AND</option>
+                    <option value="OR">OR</option>
+                  </select>
+                  <button type="button" class="btn-small btn-secondary add-condition-btn">Add Condition</button>
+                  <button type="button" class="btn-small btn-secondary add-group-btn">Add Group</button>
+                </div>
+                <div class="conditions-list">
+                  <div class="condition-item" data-condition-id="0">
+                    <select class="condition-type">
+                      <option value="url">URL Pattern</option>
+                      <option value="title">Title Keyword</option>
+                    </select>
+                    <input type="text" class="condition-value" placeholder="e.g. *.github.com/* or github">
+                    <button type="button" class="btn-small btn-danger remove-condition-btn">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="rule-preview">
+              <strong>Preview:</strong> <span id="rulePreview">URL matches * OR title contains *</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button id="createSubTag" class="btn-primary">Create Tag</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Individual Tag Settings</h3>
+          <div id="tagSettingsList">
+            <!-- Tag settings will be populated by JavaScript -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="settings-footer">
+      <button id="saveSettings" class="btn-primary">Save Settings</button>
+      <button id="exportSettings" class="btn-secondary">Export Settings</button>
+      <input type="file" id="importFile" accept=".json" style="display: none;">
+      <button id="importSettings" class="btn-secondary">Import Settings</button>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
