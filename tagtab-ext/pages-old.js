@@ -110,231 +110,52 @@ async function render(tag) {
 }
 
 async function renderCardView(tags) {
-  // Create card-based layout showing all saved pages
+  // Create card-based layout
   content.innerHTML = "";
 
-  // Add tag navigation bar
-  const tagNavigation = document.createElement('div');
-  tagNavigation.className = 'tag-navigation';
-  tagNavigation.innerHTML = '<h2>All Saved Pages</h2>';
-  content.appendChild(tagNavigation);
-
-  // Add tag filter buttons
-  const tagFilters = document.createElement('div');
-  tagFilters.className = 'tag-filters';
-
-  // Add "All" filter
-  const allFilter = document.createElement('button');
-  allFilter.textContent = 'All';
-  allFilter.className = 'filter-btn active';
-  allFilter.onclick = () => filterCardsByTag(null, tags);
-  tagFilters.appendChild(allFilter);
-
-  // Add filter for each tag
-  tags.forEach(tagInfo => {
+  // Filter out special tags for card view
+  const regularTags = tags.filter(tagInfo => {
     const tagPath = getTagPath(tagInfo);
-    if (!tagPath.startsWith('📁') && !tagPath.startsWith('📂')) {
-      const filterBtn = document.createElement('button');
-      filterBtn.textContent = getTagDisplayName(tagInfo);
-      filterBtn.className = 'filter-btn';
-      filterBtn.onclick = () => filterCardsByTag(tagPath, tags);
-      tagFilters.appendChild(filterBtn);
-    }
+    return !tagPath.startsWith('📁') && !tagPath.startsWith('📂');
   });
 
-  content.appendChild(tagFilters);
-
-  // Get all items from all tags
-  let allItems = [];
-  for (const tagInfo of tags) {
-    const tagPath = getTagPath(tagInfo);
-    const items = await fetchItems(tagPath);
-    items.forEach(item => {
-      item.sourceTag = tagPath; // Add source tag info
-    });
-    allItems = allItems.concat(items);
-  }
-
-  if (allItems.length === 0) {
-    content.innerHTML += '<div class="empty">No saved pages yet. Start saving tabs to see them here!</div>';
+  if (regularTags.length === 0) {
+    content.innerHTML = '<div class="empty">No tags created yet. Start saving tabs to create your first tag!</div>';
     return;
   }
 
-  // Remove duplicates based on URL
-  const uniqueItems = [];
-  const seenUrls = new Set();
-  for (const item of allItems) {
-    if (!seenUrls.has(item.url)) {
-      seenUrls.add(item.url);
-      uniqueItems.push(item);
-    }
-  }
+  for (const tagInfo of regularTags) {
+    const tagPath = getTagPath(tagInfo);
+    const displayName = getTagDisplayName(tagInfo);
 
-  // Sort by most recent first
-  uniqueItems.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+    // Get item count for this tag
+    const items = await fetchItems(tagPath);
+    const itemCount = items.length;
 
-  // Create container for cards
-  const cardsContainer = document.createElement('div');
-  cardsContainer.className = 'cards-container';
-  cardsContainer.id = 'cards-container';
-
-  // Store all items globally for filtering
-  window.allCardItems = uniqueItems;
-
-  // Create page cards
-  displayCards(uniqueItems);
-
-  content.appendChild(cardsContainer);
-}
-
-function displayCards(items) {
-  const cardsContainer = document.getElementById('cards-container');
-  if (!cardsContainer) return;
-
-  cardsContainer.innerHTML = '';
-
-  for (const item of items) {
+    // Create tag card
     const card = document.createElement('div');
     card.className = 'tag-card';
-    card.setAttribute('data-url', item.url);
-    card.setAttribute('data-tag', item.sourceTag);
+    card.setAttribute('data-tag-path', tagPath);
 
-    // Generate icon based on page favicon or domain
-    const icon = getPageIcon(item);
+    // Generate icon based on tag name
+    const icon = getTagIcon(displayName);
 
     card.innerHTML = `
       <div class="tag-icon">${icon}</div>
       <div class="tag-content">
-        <h3 class="tag-title">${item.title || item.url}</h3>
-        <p class="tag-subtitle">${new URL(item.url).hostname} • ${getTagDisplayName(item.sourceTag)}</p>
+        <h3 class="tag-title">${displayName}</h3>
+        <p class="tag-subtitle">${itemCount} saved ${itemCount === 1 ? 'page' : 'pages'}</p>
       </div>
       <div class="tag-arrow">→</div>
     `;
 
-    // Add click handler to open the page
-    card.addEventListener('click', (e) => {
-      e.preventDefault();
-      chrome.runtime.sendMessage({ type: "restoreItem", item: item });
+    // Add click handler
+    card.addEventListener('click', () => {
+      render(tagPath);
     });
 
-    // Add right-click context menu
-    card.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      showCardContextMenu(e, item);
-    });
-
-    cardsContainer.appendChild(card);
+    content.appendChild(card);
   }
-}
-
-function filterCardsByTag(selectedTag, tags) {
-  // Update filter button states
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-
-  if (selectedTag === null) {
-    // Show all items
-    document.querySelector('.filter-btn').classList.add('active');
-    displayCards(window.allCardItems || []);
-  } else {
-    // Show items from specific tag
-    event.target.classList.add('active');
-    const filteredItems = (window.allCardItems || []).filter(item => item.sourceTag === selectedTag);
-    displayCards(filteredItems);
-  }
-}
-
-function showCardContextMenu(event, item) {
-  // Remove any existing context menu
-  const existingMenu = document.querySelector('.card-context-menu');
-  if (existingMenu) {
-    existingMenu.remove();
-  }
-
-  // Create context menu
-  const menu = document.createElement('div');
-  menu.className = 'card-context-menu';
-  menu.style.left = event.pageX + 'px';
-  menu.style.top = event.pageY + 'px';
-
-  // Add menu items
-  const openBtn = document.createElement('button');
-  openBtn.textContent = 'Open Page';
-  openBtn.onclick = () => {
-    chrome.runtime.sendMessage({ type: "restoreItem", item: item });
-    menu.remove();
-  };
-
-  const copyBtn = document.createElement('button');
-  copyBtn.textContent = 'Copy URL';
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(item.url);
-    menu.remove();
-  };
-
-  const deleteBtn = document.createElement('button');
-  deleteBtn.textContent = 'Delete';
-  deleteBtn.onclick = async () => {
-    try {
-      await chrome.runtime.sendMessage({
-        type: "deleteItemById",
-        url: item.url,
-        savedAt: item.savedAt
-      });
-      // Refresh the card view
-      render(null);
-      menu.remove();
-    } catch (error) {
-      console.error('Error deleting item:', error);
-    }
-  };
-
-  menu.appendChild(openBtn);
-  menu.appendChild(copyBtn);
-  menu.appendChild(deleteBtn);
-
-  document.body.appendChild(menu);
-
-  // Close menu when clicking outside
-  const closeMenu = (e) => {
-    if (!menu.contains(e.target)) {
-      menu.remove();
-      document.removeEventListener('click', closeMenu);
-    }
-  };
-
-  setTimeout(() => {
-    document.addEventListener('click', closeMenu);
-  }, 0);
-}
-
-function getPageIcon(item) {
-  // Try to extract domain-based icon or use favicon
-  const hostname = new URL(item.url).hostname.toLowerCase();
-
-  if (hostname.includes('github')) return '🐙';
-  if (hostname.includes('stackoverflow')) return '📊';
-  if (hostname.includes('youtube')) return '🎬';
-  if (hostname.includes('twitter') || hostname.includes('x.com')) return '🐦';
-  if (hostname.includes('linkedin')) return '💼';
-  if (hostname.includes('facebook')) return '📘';
-  if (hostname.includes('instagram')) return '📷';
-  if (hostname.includes('reddit')) return '🤖';
-  if (hostname.includes('medium')) return '✍️';
-  if (hostname.includes('gmail') || hostname.includes('mail')) return '✉️';
-  if (hostname.includes('docs.google') || hostname.includes('drive.google')) return '📄';
-  if (hostname.includes('figma')) return '🎨';
-  if (hostname.includes('notion')) return '📝';
-  if (hostname.includes('slack')) return '💬';
-  if (hostname.includes('discord')) return '🎮';
-  if (hostname.includes('spotify')) return '🎵';
-  if (hostname.includes('netflix')) return '🎬';
-  if (hostname.includes('amazon')) return '🛒';
-  if (hostname.includes('wikipedia')) return '📚';
-
-  // Fallback to generic web icon
-  return '🌐';
 }
 
 function getTagIcon(tagName) {
@@ -382,7 +203,6 @@ async function renderDetailView(tag, tags) {
   backBtn.onclick = () => render(null);
   content.appendChild(backBtn);
 
-  // Build tabbar for tag navigation
   for (const tagInfo of tags) {
     const tagPath = getTagPath(tagInfo);
     const displayName = getTagDisplayName(tagInfo);
@@ -391,7 +211,7 @@ async function renderDetailView(tag, tags) {
 
     const btn = document.createElement("div");
     btn.className = "tab" + (tagPath === tag ? " active" : "");
-    btn.style.marginLeft = `${depth * 20}px`;
+    btn.style.marginLeft = `${depth * 20}px`; // Indent based on depth
     btn.setAttribute("data-tag-path", tagPath);
     btn.setAttribute("data-depth", depth);
 
@@ -451,8 +271,10 @@ async function renderDetailView(tag, tags) {
     });
   });
 
-  // Now show the items for the selected tag
+  if (!tag) tag = getTagPath(tags[0]);
+
   const items = await fetchItems(tag);
+  content.innerHTML = "";
 
   const controls = document.createElement("div");
   controls.className = "controls";
@@ -466,45 +288,44 @@ async function renderDetailView(tag, tags) {
   if (tag === "📁 All") {
     deleteTagBtn.textContent = "Clear all tags";
     deleteTagBtn.onclick = async () => {
-      const confirmed = confirm('This will delete ALL saved pages from ALL tags. Are you sure?');
-      if (confirmed) {
-        await chrome.runtime.sendMessage({ type: "clearAllTags" });
-        render(null); // Return to home
+      if (!confirm(`Delete all saved tabs from all tags? This cannot be undone!`)) return;
+      // Clear all regular tags
+      const allTags = await fetchTags();
+      for (const t of allTags) {
+        if (t !== "📁 All" && t !== "📂 Other") {
+          await chrome.runtime.sendMessage({ type: "deleteTag", tag: t });
+        }
       }
+      // Clear Other tag too
+      await chrome.runtime.sendMessage({ type: "deleteTag", tag: "Other" });
+      render(null);
     };
   } else if (tag === "📂 Other") {
-    deleteTagBtn.textContent = "Clear untagged";
+    deleteTagBtn.textContent = "Clear Other";
     deleteTagBtn.onclick = async () => {
-      const confirmed = confirm('This will delete all untagged pages. Are you sure?');
-      if (confirmed) {
-        await chrome.runtime.sendMessage({ type: "deleteTag", tag });
-        render(null); // Return to home
-      }
+      if (!confirm(`Clear all unclassified tabs in "Other"?`)) return;
+      await chrome.runtime.sendMessage({ type: "deleteTag", tag });
+      render(null);
     };
   } else {
     deleteTagBtn.textContent = "Delete tag";
     deleteTagBtn.onclick = async () => {
-      const confirmed = confirm(`Delete the tag "${tag}" and all its pages?`);
-      if (confirmed) {
-        await chrome.runtime.sendMessage({ type: "deleteTag", tag });
-        render(null); // Return to home
-      }
+      if (!confirm(`Delete all items in "${tag}"?`)) return;
+      await chrome.runtime.sendMessage({ type: "deleteTag", tag });
+      render(null);
     };
   }
 
-  // Add sync conditions button for regular tags (not special ones)
+  // Add sync conditions button for regular tags only
   let syncConditionsBtn = null;
-  if (!tag.startsWith('📁') && !tag.startsWith('📂')) {
+  if (tag !== "📁 All" && tag !== "📂 Other") {
     syncConditionsBtn = document.createElement("button");
     syncConditionsBtn.textContent = "Sync conditions";
-    syncConditionsBtn.title = "Import pages from other tags based on classification rules";
     syncConditionsBtn.onclick = async () => {
-      const result = await chrome.runtime.sendMessage({
-        type: "syncTagConditions",
-        tag
-      });
-      if (result && result.success) {
-        alert(`Imported ${result.count} pages based on classification rules`);
+      if (!confirm(`Sync conditions for "${tag}"? This will import matching pages from other tags based on the current classification rules.`)) return;
+      const result = await chrome.runtime.sendMessage({ type: "syncTagConditions", tag });
+      if (result.ok) {
+        alert(`Synced ${result.imported} pages to "${tag}"`);
         render(tag); // Refresh the view
       } else {
         alert('Sync failed: ' + (result.error || 'Unknown error'));
