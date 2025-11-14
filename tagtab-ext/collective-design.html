@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TagTab - Collective Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #101211;
+            color: #E9EBEA;
+            line-height: 1.4;
+            letter-spacing: -0.02em;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            padding: 0;
+            background: #101211;
+        }
+
+        .header-top {
+            background: linear-gradient(135deg, #FFE09E 0%, #FFCAA6 100%);
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        .header-top a {
+            color: #2d3436;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 64px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 500;
+            color: #E9EBEA;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: #E9EBEA;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-menu a:hover {
+            opacity: 0.8;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 40px 60px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 500;
+            line-height: 1.1;
+            margin-bottom: 48px;
+            letter-spacing: -0.025em;
+            color: #E9EBEA;
+        }
+
+        .email-form {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .email-input {
+            padding: 12px 24px;
+            border: 1px solid rgba(233, 235, 234, 0.15);
+            border-radius: 32px;
+            background: rgba(233, 235, 234, 0.08);
+            color: #E9EBEA;
+            font-size: 16px;
+            font-weight: 500;
+            min-width: 280px;
+            backdrop-filter: blur(10px);
+            letter-spacing: -0.02em;
+        }
+
+        .email-input::placeholder {
+            color: rgba(233, 235, 234, 0.5);
+        }
+
+        .submit-btn {
+            padding: 12px 24px;
+            background: #E9EBEA;
+            color: #101211;
+            border: none;
+            border-radius: 32px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: -0.02em;
+        }
+
+        .submit-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        .disclaimer {
+            font-size: 14px;
+            color: rgba(233, 235, 234, 0.5);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        /* Category Navigation */
+        .category-nav {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 40px 40px 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .category-btn {
+            padding: 8px 20px;
+            border: 1px solid rgba(233, 235, 234, 0.15);
+            border-radius: 20px;
+            background: transparent;
+            color: rgba(233, 235, 234, 0.6);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            letter-spacing: -0.02em;
+        }
+
+        .category-btn:hover {
+            color: #E9EBEA;
+            background: rgba(233, 235, 234, 0.05);
+        }
+
+        .category-btn.active {
+            background: #E9EBEA;
+            color: #101211;
+            border-color: #E9EBEA;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 80px;
+        }
+
+        .featured-item {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .item-preview {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .item-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #E9EBEA;
+            letter-spacing: -0.02em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .buy-btn, .made-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            letter-spacing: -0.02em;
+        }
+
+        .buy-btn {
+            background: #E9EBEA;
+            color: #101211;
+        }
+
+        .buy-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .made-btn {
+            background: rgba(233, 235, 234, 0.1);
+            color: #E9EBEA;
+            border: 1px solid rgba(233, 235, 234, 0.2);
+        }
+
+        .made-btn:hover {
+            background: rgba(233, 235, 234, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 80px 40px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .footer-column h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #E9EBEA;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 8px;
+        }
+
+        .footer-column a {
+            color: rgba(233, 235, 234, 0.6);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-column a:hover {
+            color: #E9EBEA;
+        }
+
+        /* Large Collective Branding */
+        .large-branding {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .collective-text {
+            font-size: clamp(120px, 20vw, 300px);
+            font-weight: 500;
+            line-height: 0.8;
+            background: linear-gradient(90deg, #FFE09E 0%, #FFCAA6 20%, #E9EBEA 40%, #E9EBEA 60%, #D8C1FF 80%, #C8B5FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            letter-spacing: -0.025em;
+        }
+
+        /* Footer Bottom */
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(233, 235, 234, 0.1);
+            font-size: 14px;
+            color: rgba(233, 235, 234, 0.5);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-bottom a {
+            color: rgba(233, 235, 234, 0.5);
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-menu {
+                gap: 20px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .email-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .email-input {
+                min-width: 100%;
+                max-width: 400px;
+            }
+
+            .category-nav {
+                padding: 40px 20px;
+            }
+
+            .main-content {
+                padding: 0 20px 60px;
+            }
+
+            .footer {
+                padding: 60px 20px 40px;
+            }
+
+            .footer-links {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            A web inspiration directory template
+            <a href="#" style="margin-left: 20px;">View all templates →</a>
+        </div>
+        <nav class="header-nav">
+            <div class="logo">Collective</div>
+            <ul class="nav-menu">
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Subscribe</a></li>
+                <li><a href="#">Submit</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>A growing collection<br>of the best websites</h1>
+        <form class="email-form" action="#" method="POST">
+            <input type="email" class="email-input" placeholder="Email address" required>
+            <button type="submit" class="submit-btn">Get weekly roundup →</button>
+        </form>
+        <p class="disclaimer">No spam, unsubscribe at any time</p>
+    </section>
+
+    <!-- Category Navigation -->
+    <nav class="category-nav">
+        <a href="#" class="category-btn">All</a>
+        <a href="#" class="category-btn">Agency</a>
+        <a href="#" class="category-btn">Blog</a>
+        <a href="#" class="category-btn">Landing</a>
+        <a href="#" class="category-btn">Portfolio</a>
+        <a href="#" class="category-btn active">Shop</a>
+        <a href="#" class="category-btn">AI</a>
+        <a href="#" class="category-btn">Business</a>
+        <a href="#" class="category-btn">Climate</a>
+        <a href="#" class="category-btn">Design</a>
+        <a href="#" class="category-btn">Event</a>
+        <a href="#" class="category-btn">Fashion</a>
+        <a href="#" class="category-btn">SaaS</a>
+        <a href="#" class="category-btn">Software</a>
+        <a href="#" class="category-btn">Technology</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="featured-item">
+            <div class="item-preview">
+                <img src="data:image/svg+xml,%3Csvg width='400' height='300' viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%23f8f9fa'/%3E%3Ctext x='200' y='150' text-anchor='middle' dy='.35em' font-family='Arial, sans-serif' font-size='16' fill='%23666'%3EWebsite Preview%3C/text%3E%3C/svg%3E" alt="Good Garms Website Preview">
+            </div>
+            <div class="item-actions">
+                <div class="item-title">Good Garms</div>
+                <div class="action-buttons">
+                    <a href="#" class="buy-btn">Buy template</a>
+                    <a href="#" class="made-btn">🔗 Made in Framer</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <div class="footer-column">
+                <h3>Pages</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Submit</a></li>
+                    <li><a href="#">Subscribe</a></li>
+                    <li><a href="#">404</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Type</h3>
+                <ul>
+                    <li><a href="#">All</a></li>
+                    <li><a href="#">Agency</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Landing</a></li>
+                    <li><a href="#">Portfolio</a></li>
+                    <li><a href="#">Shop</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Category</h3>
+                <ul>
+                    <li><a href="#">AI</a></li>
+                    <li><a href="#">Business</a></li>
+                    <li><a href="#">Climate</a></li>
+                    <li><a href="#">Design</a></li>
+                    <li><a href="#">Event</a></li>
+                    <li><a href="#">Fashion</a></li>
+                    <li><a href="#">SaaS</a></li>
+                    <li><a href="#">Software</a></li>
+                    <li><a href="#">Technology</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Creator</h3>
+                <ul>
+                    <li><a href="#">Ann Chen</a></li>
+                    <li><a href="#">Noel Vasquez</a></li>
+                    <li><a href="#">Nona Cameron</a></li>
+                    <li><a href="#">Zach Moore</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Style</h3>
+                <ul>
+                    <li><a href="#">Dark</a></li>
+                    <li><a href="#">Gradient</a></li>
+                    <li><a href="#">Light</a></li>
+                    <li><a href="#">Minimal</a></li>
+                    <li><a href="#">Sans serif</a></li>
+                    <li><a href="#">Serif</a></li>
+                    <li><a href="#">Typographic</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Other</h3>
+                <ul>
+                    <li><a href="#">Buy template</a></li>
+                    <li><a href="#">Unlimited Access templates</a></li>
+                    <li><a href="#">Made in Framer</a></li>
+                    <li><a href="#">Built by Bryn</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="large-branding">
+            <h2 class="collective-text">Collective</h2>
+        </div>
+
+        <div class="footer-bottom">
+            <div>
+                <a href="#">Privacy policy</a>
+                <a href="#">Terms & conditions</a>
+            </div>
+            <div>All screenshots © by respective owners</div>
+        </div>
+    </footer>
+
+    <script>
+        // Add interactivity
+        document.querySelector('.email-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Email subscription feature would be implemented here');
+        });
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.buy-btn, .made-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('This would navigate to: ' + this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
