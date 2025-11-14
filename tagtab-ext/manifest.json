@@ -29,6 +29,9 @@
   ],
   "options_page": "pages.html",
   "chrome_url_overrides": {
-    "newtab": "pages.html"
+    "newtab": "collective-design.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
   }
 }

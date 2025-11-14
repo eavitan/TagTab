@@ -159,6 +159,13 @@
             margin: 0 auto;
         }
 
+        .loading-message {
+            color: rgba(233, 235, 234, 0.6);
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 20px;
+        }
+
         .category-btn {
             padding: 8px 20px;
             border: 1px solid rgba(233, 235, 234, 0.15);
@@ -345,6 +352,164 @@
             font-weight: 500;
         }
 
+        /* Saved Pages Display */
+        .saved-pages-container {
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(233, 235, 234, 0.6);
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin: 0 0 12px 0;
+            color: #E9EBEA;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .date-group-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #E9EBEA;
+            margin: 32px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(233, 235, 234, 0.15);
+        }
+
+        .date-group-header:first-child {
+            margin-top: 0;
+        }
+
+        .pages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .page-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(233, 235, 234, 0.05);
+            border: 1px solid rgba(233, 235, 234, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .page-item:hover {
+            background: rgba(233, 235, 234, 0.08);
+            border-color: rgba(233, 235, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .page-item-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .page-item-icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .page-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-item-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #E9EBEA;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .page-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: rgba(233, 235, 234, 0.6);
+        }
+
+        .page-item-domain {
+            font-weight: 500;
+        }
+
+        .page-item-tag {
+            background: rgba(233, 235, 234, 0.15);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #E9EBEA;
+        }
+
+        .page-item-time {
+            font-size: 12px;
+            color: rgba(233, 235, 234, 0.4);
+        }
+
+        .page-item-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .page-action-btn {
+            padding: 6px 12px;
+            border: 1px solid rgba(233, 235, 234, 0.2);
+            border-radius: 6px;
+            background: rgba(233, 235, 234, 0.1);
+            color: #E9EBEA;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-action-btn:hover {
+            background: rgba(233, 235, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .page-action-btn.open-btn {
+            background: rgba(233, 235, 234, 0.15);
+            color: #E9EBEA;
+        }
+
+        .page-action-btn.open-btn:hover {
+            background: #E9EBEA;
+            color: #101211;
+        }
+
+        .page-action-btn.delete-btn {
+            background: rgba(255, 59, 48, 0.15);
+            border-color: rgba(255, 59, 48, 0.3);
+            color: rgba(255, 59, 48, 0.8);
+        }
+
+        .page-action-btn.delete-btn:hover {
+            background: rgba(255, 59, 48, 0.2);
+            color: #ff3b30;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-nav {
@@ -392,6 +557,32 @@
                 gap: 16px;
                 text-align: center;
             }
+
+            .saved-pages-container {
+                margin-top: 20px;
+                padding: 0 20px;
+            }
+
+            .page-item {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .page-item-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .page-item-actions {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .page-action-btn {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
         }
     </style>
 </head>
@@ -423,21 +614,7 @@
 
     <!-- Category Navigation -->
     <nav class="category-nav">
-        <a href="#" class="category-btn active">All</a>
-        <a href="#" class="category-btn">Development</a>
-        <a href="#" class="category-btn">Design</a>
-        <a href="#" class="category-btn">Work</a>
-        <a href="#" class="category-btn">Learning</a>
-        <a href="#" class="category-btn">News</a>
-        <a href="#" class="category-btn">Social</a>
-        <a href="#" class="category-btn">Shopping</a>
-        <a href="#" class="category-btn">Entertainment</a>
-        <a href="#" class="category-btn">Tools</a>
-        <a href="#" class="category-btn">Research</a>
-        <a href="#" class="category-btn">Documentation</a>
-        <a href="#" class="category-btn">Reference</a>
-        <a href="#" class="category-btn">Personal</a>
-        <a href="#" class="category-btn">Other</a>
+        <div class="loading-message">Loading your tags...</div>
     </nav>
 
     <!-- Main Content -->
@@ -538,99 +715,6 @@
         </div>
     </footer>
 
-    <script>
-        // Load actual TagTab tags and replace category buttons
-        async function loadTagTabTags() {
-            try {
-                // Try to get tags from extension storage
-                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                    const result = await chrome.storage.local.get(['tags']);
-                    const tags = result.tags || {};
-                    const tagNames = Object.keys(tags);
-
-                    if (tagNames.length > 0) {
-                        updateCategoryButtons(['All', ...tagNames]);
-                        return;
-                    }
-                }
-
-                // Fallback to default TagTab tags if no storage access
-                const defaultTags = [
-                    'All', 'Development', 'Learning', 'Social', 'Shopping', 'News'
-                ];
-                updateCategoryButtons(defaultTags);
-
-            } catch (error) {
-                console.log('Could not access extension storage, using defaults');
-                // Fallback to default tags
-                const defaultTags = [
-                    'All', 'Development', 'Learning', 'Social', 'Shopping', 'News'
-                ];
-                updateCategoryButtons(defaultTags);
-            }
-        }
-
-        function updateCategoryButtons(tagNames) {
-            const categoryNav = document.querySelector('.category-nav');
-            if (!categoryNav) return;
-
-            // Clear existing buttons
-            categoryNav.innerHTML = '';
-
-            // Create new buttons for actual tags
-            tagNames.forEach((tagName, index) => {
-                const btn = document.createElement('a');
-                btn.href = '#';
-                btn.className = 'category-btn';
-                btn.textContent = tagName;
-
-                // Make "All" active by default
-                if (tagName === 'All') {
-                    btn.classList.add('active');
-                }
-
-                // Add click handler
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-
-                    // Filter functionality
-                    console.log('Filtering by tag:', tagName);
-                    // This would integrate with TagTab's filter system
-                });
-
-                categoryNav.appendChild(btn);
-            });
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTagTabTags();
-        });
-
-        // Add other interactivity for TagTab
-        document.querySelector('.email-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const searchTerm = this.querySelector('input').value;
-            if (searchTerm) {
-                alert('Searching for: "' + searchTerm + '"');
-                // This would integrate with TagTab's search functionality
-            }
-        });
-
-        // Action buttons for extension features
-        document.querySelector('.buy-btn')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            // Open the main TagTab extension page
-            window.location.href = 'pages.html';
-        });
-
-        document.querySelector('.made-btn')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            // Open settings
-            window.location.href = 'settings.html';
-        });
-    </script>
+    <script src="collective-design.js"></script>
 </body>
 </html>

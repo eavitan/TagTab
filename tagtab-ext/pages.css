@@ -134,33 +134,36 @@ h1 {
 .tag-filters {
   display: flex;
   gap: 12px;
-  margin-bottom: 32px;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 40px 40px 60px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .filter-btn {
-  padding: 10px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  cursor: pointer;
+  padding: 8px 20px;
+  border: 1px solid rgba(233, 235, 234, 0.15);
+  border-radius: 20px;
+  background: transparent;
+  color: rgba(233, 235, 234, 0.6);
+  text-decoration: none;
+  font-size: 16px;
   font-weight: 500;
   transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: -0.02em;
 }
 
 .filter-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+  color: #E9EBEA;
+  background: rgba(233, 235, 234, 0.05);
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: #E9EBEA;
+  color: #101211;
+  border-color: #E9EBEA;
 }
 
 /* Cards container */
