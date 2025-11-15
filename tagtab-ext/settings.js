@@ -373,8 +373,8 @@ window.editTagRules = async function(tagName) {
     $('#parentTagSelect').value = '';
   }
 
-  // Clear and rebuild the conditions form with existing rules
-  populateConditionsFromExistingRules(rule);
+  // Clear and rebuild the simple rules form with existing rules
+  populateSimpleRulesFromExistingRules(rule);
 
   // Change button text to indicate editing mode
   const createBtn = $('#createSubTag');
@@ -559,9 +559,8 @@ $('#createSubTag').addEventListener('click', async () => {
     return;
   }
 
-  // Build classification rules from the advanced form
-  const advancedRules = buildRulesFromForm();
-  const classificationRules = convertAdvancedRulesToLegacy(advancedRules);
+  // Build classification rules from the simple form
+  const classificationRules = buildSimpleRulesFromForm();
 
   try {
     let response;
@@ -627,7 +626,7 @@ $('#createSubTag').addEventListener('click', async () => {
       // Clear form and reset to creation mode
       $('#parentTagSelect').value = '';
       $('#subTagName').value = '';
-      clearConditionsBuilder();
+      clearSimpleRulesBuilder();
 
       // Reset button state
       const createBtn = $('#createSubTag');
@@ -647,247 +646,211 @@ $('#createSubTag').addEventListener('click', async () => {
   }
 });
 
-// Advanced Classification Builder
-let nextConditionId = 1;
-let nextGroupId = 1;
+// Simple Classification Builder
+let nextSimpleRuleId = 1;
 
-function initConditionsBuilder() {
-  const builder = $('#conditionsBuilder');
+function initSimpleRulesBuilder() {
+  const builder = $('#simpleRulesBuilder');
 
-  // Add event listeners for the initial condition group
-  addConditionGroupListeners(builder.querySelector('.condition-group'));
-  updateRulePreview();
+  // Add event listeners for the initial rule item
+  addSimpleRuleListeners(builder.querySelector('.simple-rule-item'));
+
+  // Add listener for add rule button
+  $('#addSimpleRuleBtn').addEventListener('click', addSimpleRule);
+
+  updateSimpleRulePreview();
 }
 
-function addConditionGroupListeners(groupElement) {
-  const addConditionBtn = groupElement.querySelector('.add-condition-btn');
-  const addGroupBtn = groupElement.querySelector('.add-group-btn');
-  const groupOperator = groupElement.querySelector('.group-operator');
+function addSimpleRuleListeners(ruleElement) {
+  const removeBtn = ruleElement.querySelector('.remove-rule-btn');
+  const typeSelect = ruleElement.querySelector('.rule-type');
+  const patternInput = ruleElement.querySelector('.rule-pattern');
 
-  addConditionBtn.addEventListener('click', () => addCondition(groupElement));
-  addGroupBtn.addEventListener('click', () => addConditionGroup());
-  groupOperator.addEventListener('change', updateRulePreview);
-
-  // Add listeners to existing conditions
-  groupElement.querySelectorAll('.condition-item').forEach(addConditionListeners);
+  removeBtn.addEventListener('click', () => removeSimpleRule(ruleElement));
+  typeSelect.addEventListener('change', updateSimpleRulePreview);
+  patternInput.addEventListener('input', updateSimpleRulePreview);
 }
 
-function addConditionListeners(conditionElement) {
-  const removeBtn = conditionElement.querySelector('.remove-condition-btn');
-  const typeSelect = conditionElement.querySelector('.condition-type');
-  const valueInput = conditionElement.querySelector('.condition-value');
+function addSimpleRule() {
+  const rulesList = $('.simple-rules-list');
+  const ruleDiv = document.createElement('div');
+  ruleDiv.className = 'simple-rule-item';
+  ruleDiv.setAttribute('data-rule-id', nextSimpleRuleId++);
 
-  removeBtn.addEventListener('click', () => removeCondition(conditionElement));
-  typeSelect.addEventListener('change', updateRulePreview);
-  valueInput.addEventListener('input', updateRulePreview);
-}
-
-function addCondition(groupElement) {
-  const conditionsList = groupElement.querySelector('.conditions-list');
-  const conditionDiv = document.createElement('div');
-  conditionDiv.className = 'condition-item';
-  conditionDiv.setAttribute('data-condition-id', nextConditionId++);
-
-  conditionDiv.innerHTML = `
-    <select class="condition-type">
+  ruleDiv.innerHTML = `
+    <select class="rule-type">
       <option value="url">URL Pattern</option>
       <option value="title">Title Keyword</option>
     </select>
-    <input type="text" class="condition-value" placeholder="e.g. *.github.com/* or github">
-    <button type="button" class="btn-small btn-danger remove-condition-btn">Remove</button>
+    <input type="text" class="rule-pattern" placeholder="e.g. *github.com* or figma.com*optibus">
+    <button type="button" class="btn-small btn-danger remove-rule-btn">Remove</button>
   `;
 
-  conditionsList.appendChild(conditionDiv);
-  addConditionListeners(conditionDiv);
-  updateRulePreview();
+  rulesList.appendChild(ruleDiv);
+  addSimpleRuleListeners(ruleDiv);
+  updateSimpleRulePreview();
+
+  // Focus on the new input
+  ruleDiv.querySelector('.rule-pattern').focus();
 }
 
-function removeCondition(conditionElement) {
-  const groupElement = conditionElement.closest('.condition-group');
-  const conditionsList = groupElement.querySelector('.conditions-list');
+function removeSimpleRule(ruleElement) {
+  const rulesList = $('.simple-rules-list');
 
-  // Don't allow removing the last condition in a group
-  if (conditionsList.children.length > 1) {
-    conditionElement.remove();
-    updateRulePreview();
+  // Don't allow removing the last rule
+  if (rulesList.children.length > 1) {
+    ruleElement.remove();
+    updateSimpleRulePreview();
   } else {
-    alert('Each group must have at least one condition');
+    alert('At least one pattern field is required');
   }
 }
 
-function addConditionGroup() {
-  const builder = $('#conditionsBuilder');
-  const groupDiv = document.createElement('div');
-  groupDiv.className = 'condition-group';
-  groupDiv.setAttribute('data-group-id', nextGroupId++);
-
-  groupDiv.innerHTML = `
-    <div class="group-header">
-      <span class="group-label">Rule Group</span>
-      <select class="group-operator">
-        <option value="AND">AND</option>
-        <option value="OR">OR</option>
-      </select>
-      <button type="button" class="btn-small btn-secondary add-condition-btn">Add Condition</button>
-      <button type="button" class="btn-small btn-secondary add-group-btn">Add Group</button>
-      <button type="button" class="btn-small btn-danger remove-group-btn">Remove Group</button>
-    </div>
-    <div class="conditions-list">
-      <div class="condition-item" data-condition-id="${nextConditionId++}">
-        <select class="condition-type">
-          <option value="url">URL Pattern</option>
-          <option value="title">Title Keyword</option>
-        </select>
-        <input type="text" class="condition-value" placeholder="e.g. *.github.com/* or github">
-        <button type="button" class="btn-small btn-danger remove-condition-btn">Remove</button>
-      </div>
-    </div>
-  `;
-
-  builder.appendChild(groupDiv);
-  addConditionGroupListeners(groupDiv);
-
-  // Add remove group listener
-  const removeGroupBtn = groupDiv.querySelector('.remove-group-btn');
-  removeGroupBtn.addEventListener('click', () => removeConditionGroup(groupDiv));
-
-  updateRulePreview();
+function updateSimpleRulePreview() {
+  const preview = $('#simpleRulePreview');
+  const rules = buildSimpleRulesFromForm();
+  preview.textContent = generateSimpleRulePreviewText(rules);
 }
 
-function removeConditionGroup(groupElement) {
-  const builder = $('#conditionsBuilder');
-
-  // Don't allow removing the last group
-  if (builder.children.length > 1) {
-    groupElement.remove();
-    updateRulePreview();
-  } else {
-    alert('At least one rule group is required');
-  }
-}
-
-function updateRulePreview() {
-  const preview = $('#rulePreview');
-  const rules = buildRulesFromForm();
-  preview.textContent = generateRulePreviewText(rules);
-}
-
-function buildRulesFromForm() {
-  const builder = $('#conditionsBuilder');
-  const groups = [];
-
-  builder.querySelectorAll('.condition-group').forEach(groupElement => {
-    const operator = groupElement.querySelector('.group-operator').value;
-    const conditions = [];
-
-    groupElement.querySelectorAll('.condition-item').forEach(conditionElement => {
-      const type = conditionElement.querySelector('.condition-type').value;
-      const value = conditionElement.querySelector('.condition-value').value.trim();
-
-      if (value) {
-        conditions.push({ type, value });
-      }
-    });
-
-    if (conditions.length > 0) {
-      groups.push({ operator, conditions });
-    }
-  });
-
-  return groups;
-}
-
-function generateRulePreviewText(groups) {
-  if (groups.length === 0) return 'No conditions defined';
-
-  // Show what the user built
-  const groupTexts = groups.map(group => {
-    const conditionTexts = group.conditions.map(condition => {
-      const type = condition.type === 'url' ? 'URL matches' : 'title contains';
-      return `${type} "${condition.value}"`;
-    });
-
-    if (conditionTexts.length === 1) {
-      return conditionTexts[0];
-    } else {
-      return `(${conditionTexts.join(` ${group.operator} `)})`;
-    }
-  });
-
-  const complexPreview = groupTexts.join(' AND ');
-
-  // Show what actually gets stored (flattened)
-  const legacy = convertAdvancedRulesToLegacy(groups);
-  const hasComplexLogic = groups.some(group =>
-    group.operator === 'OR' || group.conditions.length > 1
-  ) && groups.length > 1;
-
-  if (hasComplexLogic) {
-    return `${complexPreview}\n\nNote: Currently stored as simple lists - URL patterns: [${legacy.urlPatterns.join(', ')}], Keywords: [${legacy.titleKeywords.join(', ')}]`;
-  }
-
-  return complexPreview;
-}
-
-function convertAdvancedRulesToLegacy(advancedRules) {
-  // For backward compatibility, also provide simple arrays
+function buildSimpleRulesFromForm() {
+  const rulesList = $('.simple-rules-list');
   const urlPatterns = [];
   const titleKeywords = [];
 
-  advancedRules.forEach(group => {
-    group.conditions.forEach(condition => {
-      if (condition.type === 'url' && condition.value) {
-        urlPatterns.push(condition.value);
-      } else if (condition.type === 'title' && condition.value) {
-        titleKeywords.push(condition.value);
+  rulesList.querySelectorAll('.simple-rule-item').forEach(ruleElement => {
+    const type = ruleElement.querySelector('.rule-type').value;
+    const pattern = ruleElement.querySelector('.rule-pattern').value.trim();
+
+    if (pattern) {
+      if (type === 'url') {
+        urlPatterns.push(pattern);
+      } else if (type === 'title') {
+        titleKeywords.push(pattern);
       }
-    });
+    }
   });
 
-  // Return both advanced structure and legacy arrays
-  return {
-    urlPatterns,
-    titleKeywords,
-    advancedRules // Preserve the full structure
-  };
+  return { urlPatterns, titleKeywords };
 }
 
-function clearConditionsBuilder() {
-  const builder = $('#conditionsBuilder');
+function generateSimpleRulePreviewText(rules) {
+  const { urlPatterns, titleKeywords } = rules;
+  const patterns = [];
 
-  // Reset to single group with single condition
-  builder.innerHTML = `
-    <div class="condition-group" data-group-id="0">
-      <div class="group-header">
-        <span class="group-label">Rule Group</span>
-        <select class="group-operator">
-          <option value="AND">AND</option>
-          <option value="OR">OR</option>
-        </select>
-        <button type="button" class="btn-small btn-secondary add-condition-btn">Add Condition</button>
-        <button type="button" class="btn-small btn-secondary add-group-btn">Add Group</button>
-      </div>
-      <div class="conditions-list">
-        <div class="condition-item" data-condition-id="0">
-          <select class="condition-type">
-            <option value="url">URL Pattern</option>
-            <option value="title">Title Keyword</option>
-          </select>
-          <input type="text" class="condition-value" placeholder="e.g. *.github.com/* or github">
-          <button type="button" class="btn-small btn-danger remove-condition-btn">Remove</button>
-        </div>
-      </div>
+  urlPatterns.forEach(pattern => {
+    patterns.push(`URL matches "${pattern}"`);
+  });
+
+  titleKeywords.forEach(keyword => {
+    patterns.push(`title contains "${keyword}"`);
+  });
+
+  if (patterns.length === 0) {
+    return 'No patterns defined';
+  } else if (patterns.length === 1) {
+    return patterns[0];
+  } else {
+    return patterns.join(' OR ');
+  }
+}
+
+function clearSimpleRulesBuilder() {
+  const rulesList = $('.simple-rules-list');
+
+  // Reset to single rule
+  rulesList.innerHTML = `
+    <div class="simple-rule-item" data-rule-id="0">
+      <select class="rule-type">
+        <option value="url">URL Pattern</option>
+        <option value="title">Title Keyword</option>
+      </select>
+      <input type="text" class="rule-pattern" placeholder="e.g. *github.com* or figma.com*optibus">
+      <button type="button" class="btn-small btn-danger remove-rule-btn">Remove</button>
     </div>
   `;
 
-  // Reset counters
-  nextConditionId = 1;
-  nextGroupId = 1;
+  // Reset counter
+  nextSimpleRuleId = 1;
 
   // Reinitialize listeners
-  addConditionGroupListeners(builder.querySelector('.condition-group'));
-  updateRulePreview();
+  addSimpleRuleListeners(rulesList.querySelector('.simple-rule-item'));
+  updateSimpleRulePreview();
 }
+
+function populateSimpleRulesFromExistingRules(rule) {
+  const rulesList = $('.simple-rules-list');
+
+  // Clear existing rules
+  rulesList.innerHTML = '';
+
+  const urlPatterns = rule.urlPatterns || [];
+  const titleKeywords = rule.titleKeywords || [];
+  let ruleIndex = 0;
+
+  // Add URL patterns
+  urlPatterns.forEach(pattern => {
+    const ruleDiv = document.createElement('div');
+    ruleDiv.className = 'simple-rule-item';
+    ruleDiv.setAttribute('data-rule-id', ruleIndex++);
+
+    ruleDiv.innerHTML = `
+      <select class="rule-type">
+        <option value="url" selected>URL Pattern</option>
+        <option value="title">Title Keyword</option>
+      </select>
+      <input type="text" class="rule-pattern" value="${pattern}" placeholder="e.g. *github.com* or figma.com*optibus">
+      <button type="button" class="btn-small btn-danger remove-rule-btn">Remove</button>
+    `;
+
+    rulesList.appendChild(ruleDiv);
+    addSimpleRuleListeners(ruleDiv);
+  });
+
+  // Add title keywords
+  titleKeywords.forEach(keyword => {
+    const ruleDiv = document.createElement('div');
+    ruleDiv.className = 'simple-rule-item';
+    ruleDiv.setAttribute('data-rule-id', ruleIndex++);
+
+    ruleDiv.innerHTML = `
+      <select class="rule-type">
+        <option value="url">URL Pattern</option>
+        <option value="title" selected>Title Keyword</option>
+      </select>
+      <input type="text" class="rule-pattern" value="${keyword}" placeholder="e.g. *github.com* or figma.com*optibus">
+      <button type="button" class="btn-small btn-danger remove-rule-btn">Remove</button>
+    `;
+
+    rulesList.appendChild(ruleDiv);
+    addSimpleRuleListeners(ruleDiv);
+  });
+
+  // If no rules exist, add a blank one
+  if (urlPatterns.length === 0 && titleKeywords.length === 0) {
+    const ruleDiv = document.createElement('div');
+    ruleDiv.className = 'simple-rule-item';
+    ruleDiv.setAttribute('data-rule-id', 0);
+
+    ruleDiv.innerHTML = `
+      <select class="rule-type">
+        <option value="url">URL Pattern</option>
+        <option value="title">Title Keyword</option>
+      </select>
+      <input type="text" class="rule-pattern" placeholder="e.g. *github.com* or figma.com*optibus">
+      <button type="button" class="btn-small btn-danger remove-rule-btn">Remove</button>
+    `;
+
+    rulesList.appendChild(ruleDiv);
+    addSimpleRuleListeners(ruleDiv);
+  }
+
+  // Update counters and preview
+  nextSimpleRuleId = rulesList.children.length;
+  updateSimpleRulePreview();
+}
+
+
+
 
 function extractTagName(fullTagPath) {
   const lastSlash = fullTagPath.lastIndexOf('/');
@@ -899,128 +862,6 @@ function getParentPath(fullTagPath) {
   return lastSlash > 0 ? fullTagPath.substring(0, lastSlash) : '';
 }
 
-function populateConditionsFromExistingRules(rule) {
-  const builder = $('#conditionsBuilder');
-
-  // Clear existing conditions
-  builder.innerHTML = '';
-
-  // Check if we have advanced rules stored
-  const hasAdvancedRules = rule.advancedRules && rule.advancedRules.length > 0;
-
-  if (hasAdvancedRules) {
-    // Populate from advanced rules structure
-    rule.advancedRules.forEach((group, groupIndex) => {
-      const groupDiv = document.createElement('div');
-      groupDiv.className = 'condition-group';
-      groupDiv.setAttribute('data-group-id', groupIndex);
-
-      let removeGroupBtn = '';
-      if (groupIndex > 0) {
-        removeGroupBtn = '<button type="button" class="btn-small btn-danger remove-group-btn">Remove Group</button>';
-      }
-
-      groupDiv.innerHTML = `
-        <div class="group-header">
-          <span class="group-label">Rule Group</span>
-          <select class="group-operator">
-            <option value="AND" ${group.operator === 'AND' ? 'selected' : ''}>AND</option>
-            <option value="OR" ${group.operator === 'OR' ? 'selected' : ''}>OR</option>
-          </select>
-          <button type="button" class="btn-small btn-secondary add-condition-btn">Add Condition</button>
-          <button type="button" class="btn-small btn-secondary add-group-btn">Add Group</button>
-          ${removeGroupBtn}
-        </div>
-        <div class="conditions-list">
-          ${group.conditions.map((condition, condIndex) => `
-            <div class="condition-item" data-condition-id="${groupIndex}_${condIndex}">
-              <select class="condition-type">
-                <option value="url" ${condition.type === 'url' ? 'selected' : ''}>URL Pattern</option>
-                <option value="title" ${condition.type === 'title' ? 'selected' : ''}>Title Keyword</option>
-              </select>
-              <input type="text" class="condition-value" value="${condition.value}" placeholder="e.g. *.github.com/* or github">
-              <button type="button" class="btn-small btn-danger remove-condition-btn">Remove</button>
-            </div>
-          `).join('')}
-        </div>
-      `;
-
-      builder.appendChild(groupDiv);
-      addConditionGroupListeners(groupDiv);
-
-      // Add remove group listener if it's not the first group
-      if (groupIndex > 0) {
-        const removeGroupBtn = groupDiv.querySelector('.remove-group-btn');
-        removeGroupBtn.addEventListener('click', () => removeConditionGroup(groupDiv));
-      }
-    });
-  } else {
-    // Populate from legacy rules (create single group with OR operator for multiple patterns)
-    const groupDiv = document.createElement('div');
-    groupDiv.className = 'condition-group';
-    groupDiv.setAttribute('data-group-id', '0');
-
-    const conditions = [];
-
-    // Add URL patterns
-    rule.urlPatterns?.forEach(pattern => {
-      conditions.push({
-        type: 'url',
-        value: pattern
-      });
-    });
-
-    // Add title keywords
-    rule.titleKeywords?.forEach(keyword => {
-      conditions.push({
-        type: 'title',
-        value: keyword
-      });
-    });
-
-    // If no conditions, add a blank one
-    if (conditions.length === 0) {
-      conditions.push({ type: 'url', value: '' });
-    }
-
-    // Use OR if multiple conditions, AND if just one
-    const operator = conditions.length > 1 ? 'OR' : 'AND';
-
-    groupDiv.innerHTML = `
-      <div class="group-header">
-        <span class="group-label">Rule Group</span>
-        <select class="group-operator">
-          <option value="AND" ${operator === 'AND' ? 'selected' : ''}>AND</option>
-          <option value="OR" ${operator === 'OR' ? 'selected' : ''}>OR</option>
-        </select>
-        <button type="button" class="btn-small btn-secondary add-condition-btn">Add Condition</button>
-        <button type="button" class="btn-small btn-secondary add-group-btn">Add Group</button>
-      </div>
-      <div class="conditions-list">
-        ${conditions.map((condition, index) => `
-          <div class="condition-item" data-condition-id="${index}">
-            <select class="condition-type">
-              <option value="url" ${condition.type === 'url' ? 'selected' : ''}>URL Pattern</option>
-              <option value="title" ${condition.type === 'title' ? 'selected' : ''}>Title Keyword</option>
-            </select>
-            <input type="text" class="condition-value" value="${condition.value}" placeholder="e.g. *.github.com/* or github">
-            <button type="button" class="btn-small btn-danger remove-condition-btn">Remove</button>
-          </div>
-        `).join('')}
-      </div>
-    `;
-
-    builder.appendChild(groupDiv);
-    addConditionGroupListeners(groupDiv);
-  }
-
-  // Update counters
-  nextConditionId = builder.querySelectorAll('.condition-item').length;
-  nextGroupId = builder.querySelectorAll('.condition-group').length;
-
-  // Update preview
-  updateRulePreview();
-}
 
 // Removed modal-based editing - now using form population instead
 
@@ -1030,5 +871,5 @@ function populateConditionsFromExistingRules(rule) {
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   loadSettings();
-  initConditionsBuilder();
+  initSimpleRulesBuilder();
 });

@@ -90,31 +90,34 @@
 
           <div class="classification-form">
             <h4>Classification Rules (Optional)</h4>
-            <div id="conditionsBuilder">
-              <div class="condition-group" data-group-id="0">
-                <div class="group-header">
-                  <span class="group-label">Rule Group</span>
-                  <select class="group-operator">
-                    <option value="AND">AND</option>
-                    <option value="OR">OR</option>
+            <p class="form-help">Add patterns to automatically classify tabs. Each pattern can match URLs or titles. All patterns are connected with OR (if any pattern matches, the tab will be classified to this tag).</p>
+
+            <div id="simpleRulesBuilder">
+              <div class="simple-rules-list">
+                <div class="simple-rule-item" data-rule-id="0">
+                  <select class="rule-type">
+                    <option value="url">URL Pattern</option>
+                    <option value="title">Title Keyword</option>
                   </select>
-                  <button type="button" class="btn-small btn-secondary add-condition-btn">Add Condition</button>
-                  <button type="button" class="btn-small btn-secondary add-group-btn">Add Group</button>
-                </div>
-                <div class="conditions-list">
-                  <div class="condition-item" data-condition-id="0">
-                    <select class="condition-type">
-                      <option value="url">URL Pattern</option>
-                      <option value="title">Title Keyword</option>
-                    </select>
-                    <input type="text" class="condition-value" placeholder="e.g. *.github.com/* or github">
-                    <button type="button" class="btn-small btn-danger remove-condition-btn">Remove</button>
-                  </div>
+                  <input type="text" class="rule-pattern" placeholder="e.g. *github.com* or figma.com*optibus">
+                  <button type="button" class="btn-small btn-danger remove-rule-btn">Remove</button>
                 </div>
               </div>
+              <button type="button" id="addSimpleRuleBtn" class="btn-small btn-secondary">Add Pattern</button>
             </div>
+
+            <div class="pattern-help">
+              <h5>Pattern Examples:</h5>
+              <ul>
+                <li><strong>*github.com*</strong> - Matches any URL containing "github.com"</li>
+                <li><strong>figma.com*optibus</strong> - Matches URLs starting with "figma.com" and ending with "optibus"</li>
+                <li><strong>development</strong> - Matches titles containing "development"</li>
+              </ul>
+              <p><strong>Note:</strong> * means "any characters" (like .* in regex)</p>
+            </div>
+
             <div class="rule-preview">
-              <strong>Preview:</strong> <span id="rulePreview">URL matches * OR title contains *</span>
+              <strong>Preview:</strong> <span id="simpleRulePreview">No patterns defined</span>
             </div>
           </div>
 

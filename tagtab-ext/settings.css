@@ -348,6 +348,72 @@ header h1 {
   color: #555;
 }
 
+/* Simple Rules Builder Styles */
+.simple-rules-list {
+  margin-bottom: 15px;
+}
+
+.simple-rule-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #f8f8f8;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.simple-rule-item:last-child {
+  margin-bottom: 0;
+}
+
+.rule-type {
+  min-width: 120px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.rule-pattern {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.pattern-help {
+  margin: 15px 0;
+  padding: 12px;
+  background: #e8f4fd;
+  border-radius: 4px;
+  border-left: 4px solid #007bff;
+}
+
+.pattern-help h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #007bff;
+}
+
+.pattern-help ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.pattern-help li {
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.pattern-help p {
+  margin: 8px 0 0 0;
+  font-size: 13px;
+  color: #666;
+}
+
 .btn-small.btn-secondary:hover {
   background: #e9ecef;
 }
