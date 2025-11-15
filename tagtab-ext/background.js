@@ -429,6 +429,51 @@ async function saveTabsToTag(tag, scope = "currentWindow", useClassification = f
   return { saved: closable.length };
 }
 
+async function saveSpecificTabsToTag(tag, tabIds) {
+  const { tags } = await getStore();
+  await ensureTag(tags, tag);
+
+  // Get the specific tabs by their IDs
+  const tabs = await Promise.all(
+    tabIds.map(async (id) => {
+      try {
+        return await chrome.tabs.get(id);
+      } catch (error) {
+        console.warn(`Tab ${id} not found:`, error);
+        return null;
+      }
+    })
+  );
+
+  // Filter out null tabs and non-closable tabs
+  const closable = tabs.filter(t =>
+    t && t.url &&
+    !t.url.startsWith("chrome://") &&
+    !t.url.startsWith("edge://") &&
+    !t.url.startsWith("about:blank")
+  );
+
+  // Save tabs to the specified tag
+  for (const t of closable) {
+    tags[tag].push({
+      url: t.url,
+      title: t.title || t.url,
+      favIconUrl: t.favIconUrl || "",
+      savedAt: nowISO()
+    });
+  }
+
+  await setStore({ tags });
+
+  // Close the tabs
+  const toClose = closable.map(t => t.id).filter(Boolean);
+  if (toClose.length) {
+    await chrome.tabs.remove(toClose);
+  }
+
+  return { saved: closable.length };
+}
+
 async function getTags() {
   const { tags, tagHierarchy } = await getStore();
 
@@ -827,6 +872,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       } else if (msg.type === "saveAndClose") {
         const { tag, scope, useClassification } = msg;
         const res = await saveTabsToTag(tag, scope, useClassification);
+        sendResponse({ ok: true, ...res });
+      } else if (msg.type === "saveSpecificTabs") {
+        const { tag, tabIds } = msg;
+        const res = await saveSpecificTabsToTag(tag, tabIds);
         sendResponse({ ok: true, ...res });
       } else if (msg.type === "getTagData") {
         const list = await getTagData(msg.tag);

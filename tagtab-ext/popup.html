@@ -21,6 +21,19 @@
     </div>
     <div id="toast" hidden></div>
   </div>
+
+  <!-- Regex Dialog -->
+  <div id="regexDialog" class="regex-dialog" style="display: none;">
+    <div class="regex-dialog-content">
+      <h3>Add URL Pattern Rule</h3>
+      <input type="text" id="regexInput" placeholder="Enter URL pattern...">
+      <div class="regex-suggestions" id="regexSuggestions"></div>
+      <div class="regex-actions">
+        <button id="regexCancel">Cancel</button>
+        <button id="regexSave" class="primary">Save Rule</button>
+      </div>
+    </div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
