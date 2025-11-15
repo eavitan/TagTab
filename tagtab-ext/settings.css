@@ -164,7 +164,7 @@ header h1 {
 
 .rule-patterns {
   font-size: 12px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .rule-actions {
@@ -208,11 +208,11 @@ header h1 {
 .tag-setting-item {
   display: flex;
   flex-direction: column;
-  padding: 15px;
+  padding: 20px;
   margin-bottom: 15px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
 .tag-header {
@@ -245,7 +245,7 @@ header h1 {
 .rule-group {
   margin: 4px 0;
   font-size: 13px;
-  color: #555;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .rule-controls {
@@ -255,9 +255,9 @@ header h1 {
 }
 
 .info-section {
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   padding: 12px;
   margin-top: 15px;
 }
@@ -265,16 +265,16 @@ header h1 {
 .info-section p {
   margin: 0;
   font-size: 14px;
-  color: #555;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* Advanced Classification Form */
 .classification-form {
   margin-top: 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 15px;
-  background: #f9f9f9;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .classification-form h4 {
@@ -284,16 +284,16 @@ header h1 {
 }
 
 .condition-group {
-  border: 1px solid #d0d0d0;
-  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   margin-bottom: 10px;
-  background: white;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .group-header {
-  background: #f0f0f0;
+  background: rgba(255, 255, 255, 0.05);
   padding: 8px 12px;
-  border-bottom: 1px solid #d0d0d0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -301,7 +301,7 @@ header h1 {
 
 .group-label {
   font-weight: 600;
-  color: #555;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .group-operator {
@@ -322,9 +322,9 @@ header h1 {
   gap: 8px;
   margin-bottom: 8px;
   padding: 8px;
-  background: #f8f8f8;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .condition-item:last-child {
@@ -370,10 +370,10 @@ header h1 {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
-  padding: 8px;
-  background: #f8f8f8;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .simple-rule-item:last-child {
@@ -400,8 +400,8 @@ header h1 {
   margin: 15px 0;
   padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  border-left: 4px solid #007bff;
+  border-radius: 8px;
+  border-left: 4px solid rgba(255, 255, 255, 0.3);
 }
 
 .pattern-help h5 {
@@ -423,7 +423,7 @@ header h1 {
 .pattern-help p {
   margin: 8px 0 0 0;
   font-size: 13px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .btn-small.btn-secondary:hover {
@@ -476,13 +476,14 @@ header h1 {
 }
 
 .rule-modal {
-  background: white;
-  border-radius: 8px;
+  background: #2c2c2c;
+  border-radius: 12px;
   width: 90%;
   max-width: 700px;
   max-height: 80vh;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header {
@@ -490,14 +491,14 @@ header h1 {
   align-items: center;
   justify-content: space-between;
   padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #333;
+  color: #ffffff;
 }
 
 .modal-close-btn {
@@ -531,8 +532,8 @@ header h1 {
   gap: 10px;
   justify-content: flex-end;
   padding: 15px 20px;
-  border-top: 1px solid #e0e0e0;
-  background: #f8f9fa;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .modal-cancel-btn {
@@ -558,11 +559,12 @@ header h1 {
 .tag-name {
   font-weight: bold;
   margin-bottom: 4px;
+  color: #ffffff;
 }
 
 .tag-meta {
   font-size: 12px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .tag-controls {
@@ -581,8 +583,8 @@ header h1 {
 
 .settings-footer {
   padding: 20px;
-  border-top: 1px solid #e0e0e0;
-  background: #f8f9fa;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
   display: flex;
   gap: 10px;
   justify-content: flex-end;
