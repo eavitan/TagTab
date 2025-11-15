@@ -1,26 +1,29 @@
 /* Settings page styles */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin: 0;
   padding: 0;
-  background: #f5f5f5;
-  color: #333;
+  background: #000000;
+  color: #ffffff;
+  min-height: 100vh;
 }
 
 .wrap {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
-  background: white;
+  background: transparent;
   min-height: 100vh;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  padding: 24px;
+  box-sizing: border-box;
 }
 
 header {
   display: flex;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #fff;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 32px;
 }
 
 header img {
@@ -29,30 +32,36 @@ header img {
 
 header h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 600;
   flex: 1;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .back-btn {
-  color: #007bff;
+  color: #ffffff;
   text-decoration: none;
-  font-size: 14px;
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: 1px solid #007bff;
+  font-size: 18px;
+  padding: 12px;
+  border-radius: 8px;
   background: transparent;
+  transition: background 0.2s ease;
+  border: none;
 }
 
 .back-btn:hover {
-  background: #007bff;
-  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 .settings-nav {
   display: flex;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  margin-bottom: 32px;
 }
 
 .tab-btn {
@@ -61,23 +70,25 @@ header h1 {
   background: transparent;
   cursor: pointer;
   font-size: 14px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .tab-btn.active {
-  color: #007bff;
-  border-bottom-color: #007bff;
-  background: white;
+  color: #ffffff;
+  border-bottom-color: rgba(255, 255, 255, 0.8);
+  background: transparent;
 }
 
 .tab-btn:hover {
-  color: #007bff;
-  background: #f0f8ff;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
 
 .settings-content {
-  padding: 20px;
+  padding: 0;
 }
 
 .tab-content {
@@ -90,10 +101,10 @@ header h1 {
 
 .setting-group {
   margin-bottom: 30px;
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fafafa;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(232, 229, 255, 0.1) 0%, rgba(212, 208, 240, 0.1) 100%);
 }
 
 .setting-group h3 {
@@ -107,7 +118,7 @@ header h1 {
   margin: 20px 0 10px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #666;
+  color: #ffffff;
 }
 
 .setting-group label {
@@ -115,6 +126,7 @@ header h1 {
   align-items: center;
   margin-bottom: 10px;
   cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .setting-group input[type="radio"],
@@ -135,9 +147,9 @@ header h1 {
   justify-content: space-between;
   padding: 10px;
   margin-bottom: 8px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
 
 .rule-info {
@@ -146,7 +158,7 @@ header h1 {
 
 .rule-tag {
   font-weight: bold;
-  color: #007bff;
+  color: #ffffff;
   margin-bottom: 4px;
 }
 
@@ -189,7 +201,7 @@ header h1 {
 .form-help {
   margin: 5px 0 0 0;
   font-size: 12px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   font-style: italic;
 }
 
@@ -268,7 +280,7 @@ header h1 {
 .classification-form h4 {
   margin: 0 0 15px 0;
   font-size: 16px;
-  color: #333;
+  color: #ffffff;
 }
 
 .condition-group {
@@ -387,7 +399,7 @@ header h1 {
 .pattern-help {
   margin: 15px 0;
   padding: 12px;
-  background: #e8f4fd;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   border-left: 4px solid #007bff;
 }
@@ -395,7 +407,7 @@ header h1 {
 .pattern-help h5 {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: #007bff;
+  color: #ffffff;
 }
 
 .pattern-help ul {
@@ -431,21 +443,22 @@ header h1 {
 .rule-preview {
   margin-top: 15px;
   padding: 10px;
-  background: #e8f4f8;
-  border: 1px solid #bee5eb;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .rule-preview span {
   font-family: monospace;
-  color: #0c5460;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .form-actions {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Modal Styles */
@@ -576,32 +589,38 @@ header h1 {
 }
 
 .btn-primary {
-  background: #007bff;
-  color: white;
+  background: linear-gradient(135deg, #e8e5ff 0%, #d4d0f0 100%);
+  color: #2c2c2c;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #f0edff 0%, #ddd9f2 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary {
   background: transparent;
-  color: #007bff;
-  border: 1px solid #007bff;
-  padding: 10px 20px;
-  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: #007bff;
-  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .btn-danger {
@@ -647,4 +666,29 @@ header h1 {
     width: 100%;
     justify-content: flex-start;
   }
+}
+
+/* Form Elements Dark Theme */
+input[type="text"], input[type="email"], select, .rule-pattern, .rule-type {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, select:focus, .rule-pattern:focus, .rule-type:focus {
+  outline: none !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+select option {
+  background: #2c2c2c !important;
+  color: #ffffff !important;
 }

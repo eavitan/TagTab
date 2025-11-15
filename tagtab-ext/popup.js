@@ -217,16 +217,17 @@ $("#regexSave").addEventListener("click", async () => {
   if (!pattern || !currentTagForRegex) return;
 
   try {
-    // Here we would add the pattern to the tag's classification rules
-    // For now, we'll use a new message type that should be implemented in background.js
+    // Add the pattern to the tag's classification rules using existing function
     const r = await chrome.runtime.sendMessage({
-      type: "addUrlPatternRule",
-      tag: currentTagForRegex.path,
-      pattern: pattern
+      type: "addCustomRule",
+      tagName: currentTagForRegex.path,
+      urlPatterns: [pattern],
+      titleKeywords: []
     });
 
     if (r.ok) {
-      showToast(`Added pattern "${pattern}" to ${currentTagForRegex.display}`);
+      showToast(`Added URL pattern "${pattern}" to ${currentTagForRegex.display}`);
+      console.log('Updated classification rules:', r.rules);
     } else {
       showToast("Error: " + (r.error || "Failed to add pattern"));
     }
