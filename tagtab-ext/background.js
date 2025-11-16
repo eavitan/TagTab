@@ -779,6 +779,33 @@ async function deleteTag(tag) {
   await setStore({ tags });
 }
 
+async function deleteDomainFromTag(tag, domain) {
+  const { tags } = await getStore();
+
+  if (!tags[tag] || !Array.isArray(tags[tag])) {
+    throw new Error(`Tag "${tag}" does not exist`);
+  }
+
+  const items = tags[tag];
+  const initialCount = items.length;
+
+  // Filter out items from the specified domain
+  tags[tag] = items.filter(item => {
+    try {
+      const itemDomain = new URL(item.url).hostname;
+      return itemDomain !== domain;
+    } catch (e) {
+      // Keep items with malformed URLs
+      return true;
+    }
+  });
+
+  const deletedCount = initialCount - tags[tag].length;
+  await setStore({ tags });
+
+  return deletedCount;
+}
+
 async function syncTagConditions(targetTag) {
   const { tags, tagSettings } = await getStore();
 
@@ -889,6 +916,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       } else if (msg.type === "deleteTag") {
         await deleteTag(msg.tag);
         sendResponse({ ok: true });
+      } else if (msg.type === "deleteDomainFromTag") {
+        const count = await deleteDomainFromTag(msg.tag, msg.domain);
+        sendResponse({ ok: true, count });
       } else if (msg.type === "restoreItem") {
         await restoreItem(msg.item);
         sendResponse({ ok: true });

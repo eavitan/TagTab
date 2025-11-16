@@ -286,6 +286,10 @@ function createPageItem(item, actualIdx, tag) {
     const row = document.createElement("div");
     row.className = "page-item";
 
+    // Create main row container
+    const pageItemRow = document.createElement("div");
+    pageItemRow.className = "page-item-row";
+
     // Create icon container (minimalist design)
     const iconContainer = document.createElement("div");
     iconContainer.className = "page-item-icon";
@@ -300,7 +304,7 @@ function createPageItem(item, actualIdx, tag) {
 
     const title = document.createElement("div");
     title.className = "page-item-title";
-    title.textContent = item.title || item.url;
+    title.textContent = item.customTitle || item.title || item.url;
 
     const meta = document.createElement("div");
     meta.className = "page-item-meta";
@@ -343,6 +347,15 @@ function createPageItem(item, actualIdx, tag) {
         chrome.runtime.sendMessage({ type: "restoreItem", item: item });
     });
 
+    const settingsBtn = document.createElement("button");
+    settingsBtn.className = "page-action-btn settings-btn";
+    settingsBtn.innerHTML = "⚙️";
+    settingsBtn.title = "Settings";
+    settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleItemSettings(row, item, tag);
+    });
+
     const delBtn = document.createElement("button");
     delBtn.className = "page-action-btn delete-btn";
     delBtn.innerHTML = "🗑️";
@@ -370,8 +383,11 @@ function createPageItem(item, actualIdx, tag) {
         }
     });
 
-    actions.append(restoreBtn, delBtn);
-    row.append(iconContainer, info, actions);
+    actions.append(restoreBtn, settingsBtn, delBtn);
+
+    // Assemble the row structure
+    pageItemRow.append(iconContainer, info, actions);
+    row.appendChild(pageItemRow);
 
     // Add click handler for main item (also opens page)
     info.addEventListener('click', (e) => {
@@ -398,6 +414,234 @@ function showMessage(message) {
     }
 }
 
+function toggleItemSettings(row, item, tag) {
+    const existingPanel = row.querySelector('.item-settings-panel');
+
+    if (existingPanel) {
+        // Toggle existing panel
+        existingPanel.classList.toggle('active');
+        return;
+    }
+
+    // Create a safe ID by replacing invalid characters
+    const safeId = item.savedAt.replace(/[^a-zA-Z0-9-_]/g, '_');
+
+    // Get domain for delete domain feature
+    let domain = '';
+    try {
+        domain = new URL(item.url).hostname;
+    } catch (e) {
+        domain = item.url;
+    }
+
+    // Check if we should show delete domain button
+    const showDeleteDomain = tag !== "📁 All" && tag !== "📂 Other";
+
+    // Create new settings panel
+    const settingsPanel = document.createElement('div');
+    settingsPanel.className = 'item-settings-panel active';
+    settingsPanel.innerHTML = `
+        <div class="settings-grid">
+            <div class="settings-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="itemSettings-priority-${safeId}">
+                    Mark as priority
+                </label>
+            </div>
+            <div class="settings-group">
+                <label for="itemSettings-customTitle-${safeId}">Custom Title</label>
+                <input type="text" id="itemSettings-customTitle-${safeId}" placeholder="Override page title" value="${(item.title || '').replace(/"/g, '&quot;')}">
+            </div>
+            <div class="settings-group">
+                <label for="itemSettings-tags-${safeId}">Additional Tags</label>
+                <input type="text" id="itemSettings-tags-${safeId}" placeholder="Add comma-separated tags">
+            </div>
+            <div class="settings-group">
+                <div class="regex-toggle-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="itemSettings-regexToggle-${safeId}">
+                        Add URL pattern rule
+                    </label>
+                    <div class="regex-field" id="regexField-${safeId}">
+                        <input type="text" id="itemSettings-regex-${safeId}" placeholder="Enter URL pattern (e.g., *${domain}*)">
+                        <div class="regex-help">Create automatic classification rule for similar URLs</div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-group full-width">
+                <label for="itemSettings-notes-${safeId}">Notes</label>
+                <textarea id="itemSettings-notes-${safeId}" placeholder="Add your notes about this page..."></textarea>
+            </div>
+        </div>
+        <div class="settings-actions">
+            <button class="settings-btn danger" data-action="deleteDomain" ${!showDeleteDomain ? 'disabled' : ''}>
+                Delete ${domain} from tag
+            </button>
+            <button class="settings-btn secondary" data-action="cancel">Cancel</button>
+            <button class="settings-btn primary" data-action="save">Save</button>
+        </div>
+    `;
+
+    // Load existing settings if any
+    loadItemSettings(item, settingsPanel, safeId);
+
+    // Add event listeners for buttons
+    settingsPanel.querySelector('[data-action="cancel"]').addEventListener('click', () => {
+        settingsPanel.classList.remove('active');
+    });
+
+    settingsPanel.querySelector('[data-action="save"]').addEventListener('click', () => {
+        saveItemSettings(item.savedAt, tag, safeId);
+    });
+
+    // Add regex toggle functionality
+    const regexToggle = settingsPanel.querySelector(`#itemSettings-regexToggle-${safeId}`);
+    const regexField = settingsPanel.querySelector(`#regexField-${safeId}`);
+
+    regexToggle.addEventListener('change', () => {
+        if (regexToggle.checked) {
+            regexField.classList.add('active');
+            // Pre-fill with domain pattern
+            const regexInput = settingsPanel.querySelector(`#itemSettings-regex-${safeId}`);
+            if (!regexInput.value) {
+                regexInput.value = `*${domain}*`;
+            }
+        } else {
+            regexField.classList.remove('active');
+        }
+    });
+
+    // Add delete domain functionality
+    const deleteDomainBtn = settingsPanel.querySelector('[data-action="deleteDomain"]');
+    if (deleteDomainBtn && !deleteDomainBtn.disabled) {
+        deleteDomainBtn.addEventListener('click', async () => {
+            if (confirm(`Delete all pages from domain "${domain}" in tag "${tag}"? This action cannot be undone.`)) {
+                try {
+                    const result = await chrome.runtime.sendMessage({
+                        type: "deleteDomainFromTag",
+                        tag: tag,
+                        domain: domain
+                    });
+
+                    if (result.ok) {
+                        settingsPanel.classList.remove('active');
+                        render(currentTag); // Refresh the view
+                        alert(`Deleted ${result.count || 0} pages from domain "${domain}"`);
+                    } else {
+                        alert('Failed to delete domain: ' + (result.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error deleting domain:', error);
+                    alert('Error deleting domain from tag');
+                }
+            }
+        });
+    }
+
+    row.appendChild(settingsPanel);
+}
+
+async function loadItemSettings(item, panel, safeId) {
+    try {
+        const result = await chrome.runtime.sendMessage({
+            type: "getItemSettings",
+            url: item.url,
+            savedAt: item.savedAt
+        });
+
+        if (result.ok && result.settings) {
+            const settings = result.settings;
+
+            // Load priority
+            const priorityCheckbox = panel.querySelector(`#itemSettings-priority-${safeId}`);
+            if (priorityCheckbox) priorityCheckbox.checked = settings.priority || false;
+
+            // Load notes
+            const notesTextarea = panel.querySelector(`#itemSettings-notes-${safeId}`);
+            if (notesTextarea) notesTextarea.value = settings.notes || '';
+
+            // Load custom title
+            const customTitleInput = panel.querySelector(`#itemSettings-customTitle-${safeId}`);
+            if (customTitleInput && settings.customTitle) {
+                customTitleInput.value = settings.customTitle;
+            }
+
+            // Load additional tags
+            const tagsInput = panel.querySelector(`#itemSettings-tags-${safeId}`);
+            if (tagsInput && settings.additionalTags) {
+                tagsInput.value = settings.additionalTags.join(', ');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading item settings:', error);
+    }
+}
+
+async function saveItemSettings(savedAt, tag, safeId) {
+    try {
+        const priority = document.querySelector(`#itemSettings-priority-${safeId}`).checked;
+        const notes = document.querySelector(`#itemSettings-notes-${safeId}`).value;
+        const customTitle = document.querySelector(`#itemSettings-customTitle-${safeId}`).value;
+        const tagsInput = document.querySelector(`#itemSettings-tags-${safeId}`).value;
+        const additionalTags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+        // Handle regex pattern
+        const regexToggle = document.querySelector(`#itemSettings-regexToggle-${safeId}`).checked;
+        const regexPattern = regexToggle ? document.querySelector(`#itemSettings-regex-${safeId}`).value.trim() : '';
+
+        const result = await chrome.runtime.sendMessage({
+            type: "saveItemSettings",
+            savedAt: savedAt,
+            settings: {
+                priority,
+                notes,
+                customTitle,
+                additionalTags
+            }
+        });
+
+        // If regex pattern is provided, add it as a classification rule
+        if (regexPattern && result.ok) {
+            const regexResult = await chrome.runtime.sendMessage({
+                type: "addCustomRule",
+                tagName: tag,
+                urlPatterns: [regexPattern],
+                titleKeywords: []
+            });
+
+            if (!regexResult.ok) {
+                console.error('Failed to add regex rule:', regexResult.error);
+            }
+        }
+
+        if (result.ok) {
+            // Close the settings panel
+            const panel = document.querySelector(`#itemSettings-priority-${safeId}`).closest('.item-settings-panel');
+            if (panel) {
+                panel.classList.remove('active');
+            }
+
+            // Refresh the view to show any title changes
+            render(currentTag);
+
+            // Show success message
+            const message = regexPattern ?
+                'Settings saved and URL pattern rule added!' :
+                'Settings saved!';
+
+            // Simple toast instead of alert
+            setTimeout(() => {
+                console.log(message);
+            }, 100);
+        } else {
+            alert('Failed to save settings: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error saving item settings:', error);
+        alert('Error saving settings');
+    }
+}
+
 function setupActionButtons() {
     // Update action buttons
     const openBtn = document.querySelector('.buy-btn');
@@ -407,7 +651,7 @@ function setupActionButtons() {
         openBtn.textContent = 'Open Pages Manager';
         openBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            chrome.tabs.create({ url: 'pages.html' });
+            chrome.tabs.create({ url: 'collective-design.html' });
         });
     }
 

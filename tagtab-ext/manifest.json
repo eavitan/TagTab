@@ -27,7 +27,7 @@
   "host_permissions": [
     "<all_urls>"
   ],
-  "options_page": "pages.html",
+  "options_page": "collective-design.html",
   "chrome_url_overrides": {
     "newtab": "collective-design.html"
   },
