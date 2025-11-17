@@ -545,11 +545,6 @@ async function renderDetailView(tag, tags) {
     list.className = "list";
 
     dateItems.forEach((it, dateIdx) => {
-      // Find the actual index in the original items array for proper deletion
-      const actualIdx = items.findIndex(item =>
-        item.url === it.url && item.savedAt === it.savedAt
-      );
-
       const row = document.createElement("div");
       row.className = "item";
       const icon = document.createElement("img");
@@ -594,6 +589,10 @@ async function renderDetailView(tag, tags) {
               savedAt: it.savedAt
             });
           } else {
+            // Find the actual index in the original items array for proper deletion
+            const actualIdx = items.findIndex(item =>
+              item.url === it.url && item.savedAt === it.savedAt
+            );
             // Regular delete for specific tag views
             await chrome.runtime.sendMessage({
               type: "deleteItem",
