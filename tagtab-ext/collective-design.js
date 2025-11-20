@@ -442,74 +442,77 @@ function toggleItemSettings(row, item, tag) {
     settingsPanel.className = 'item-settings-panel active';
     settingsPanel.innerHTML = `
         <div class="settings-grid">
-            <div class="settings-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="itemSettings-priority-${safeId}">
-                    Mark as priority
-                </label>
-            </div>
-            <div class="settings-group">
-                <label for="itemSettings-customTitle-${safeId}">Custom Title</label>
-                <input type="text" id="itemSettings-customTitle-${safeId}" placeholder="Override page title" value="${(item.title || '').replace(/"/g, '&quot;')}">
-            </div>
-            <div class="settings-group">
-                <label for="itemSettings-tags-${safeId}">Additional Tags</label>
-                <input type="text" id="itemSettings-tags-${safeId}" placeholder="Add comma-separated tags">
-            </div>
-            <div class="settings-group">
-                <div class="regex-toggle-section">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="itemSettings-regexToggle-${safeId}">
-                        Add URL pattern rule
-                    </label>
-                    <div class="regex-field" id="regexField-${safeId}">
-                        <input type="text" id="itemSettings-regex-${safeId}" placeholder="Enter URL pattern (e.g., *${domain}*)">
-                        <div class="regex-help">Create automatic classification rule for similar URLs</div>
-                    </div>
-                </div>
-            </div>
             <div class="settings-group full-width">
-                <label for="itemSettings-notes-${safeId}">Notes</label>
-                <textarea id="itemSettings-notes-${safeId}" placeholder="Add your notes about this page..."></textarea>
+                <label for="itemSettings-regex-${safeId}">URL Pattern Rule</label>
+                <input type="text" id="itemSettings-regex-${safeId}" placeholder="Enter URL pattern">
+                <div class="regex-help">Create automatic classification rule for similar URLs</div>
+                <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+                    <select id="itemSettings-tagSelect-${safeId}" style="flex: 1; padding: 6px 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; color: #E9EBEA; font-size: 12px;">
+                        <option value="">Loading tags...</option>
+                    </select>
+                    <button class="settings-btn primary" data-action="saveRegex" style="font-size: 12px; padding: 6px 12px;">Save to Tag</button>
+                </div>
             </div>
         </div>
         <div class="settings-actions">
             <button class="settings-btn danger" data-action="deleteDomain" ${!showDeleteDomain ? 'disabled' : ''}>
-                Delete ${domain} from tag
+                Delete
             </button>
-            <button class="settings-btn secondary" data-action="cancel">Cancel</button>
-            <button class="settings-btn primary" data-action="save">Save</button>
+            <button class="settings-btn secondary" data-action="cancel">Close</button>
         </div>
     `;
 
     // Load existing settings if any
     loadItemSettings(item, settingsPanel, safeId);
 
+    // Populate tag dropdown
+    populateTagDropdown(settingsPanel, safeId, tag);
+
     // Add event listeners for buttons
     settingsPanel.querySelector('[data-action="cancel"]').addEventListener('click', () => {
         settingsPanel.classList.remove('active');
     });
 
-    settingsPanel.querySelector('[data-action="save"]').addEventListener('click', () => {
-        saveItemSettings(item.savedAt, tag, safeId);
-    });
+    // Add save regex functionality
+    settingsPanel.querySelector('[data-action="saveRegex"]').addEventListener('click', async () => {
+        const regexPattern = settingsPanel.querySelector(`#itemSettings-regex-${safeId}`).value.trim();
+        const selectedTag = settingsPanel.querySelector(`#itemSettings-tagSelect-${safeId}`).value;
 
-    // Add regex toggle functionality
-    const regexToggle = settingsPanel.querySelector(`#itemSettings-regexToggle-${safeId}`);
-    const regexField = settingsPanel.querySelector(`#regexField-${safeId}`);
+        if (!regexPattern) {
+            alert('Please enter a URL pattern');
+            return;
+        }
 
-    regexToggle.addEventListener('change', () => {
-        if (regexToggle.checked) {
-            regexField.classList.add('active');
-            // Pre-fill with domain pattern
-            const regexInput = settingsPanel.querySelector(`#itemSettings-regex-${safeId}`);
-            if (!regexInput.value) {
-                regexInput.value = `*${domain}*`;
+        if (!selectedTag) {
+            alert('Please select a tag');
+            return;
+        }
+
+        try {
+            const regexResult = await chrome.runtime.sendMessage({
+                type: "addCustomRule",
+                tagName: selectedTag,
+                urlPatterns: [regexPattern],
+                titleKeywords: []
+            });
+
+            if (regexResult.ok) {
+                alert(`URL pattern rule added to "${selectedTag}"!`);
+                settingsPanel.classList.remove('active');
+            } else {
+                alert('Failed to add URL pattern rule: ' + (regexResult.error || 'Unknown error'));
             }
-        } else {
-            regexField.classList.remove('active');
+        } catch (error) {
+            console.error('Error saving regex rule:', error);
+            alert('Error saving URL pattern rule');
         }
     });
+
+    // Pre-fill URL pattern with the full saved URL
+    const regexInput = settingsPanel.querySelector(`#itemSettings-regex-${safeId}`);
+    if (!regexInput.value) {
+        regexInput.value = item.url;
+    }
 
     // Add delete domain functionality
     const deleteDomainBtn = settingsPanel.querySelector('[data-action="deleteDomain"]');
@@ -541,6 +544,44 @@ function toggleItemSettings(row, item, tag) {
     row.appendChild(settingsPanel);
 }
 
+async function populateTagDropdown(panel, safeId, currentTag) {
+    try {
+        const allTags = await fetchTags();
+        const tagSelect = panel.querySelector(`#itemSettings-tagSelect-${safeId}`);
+
+        // Clear loading option
+        tagSelect.innerHTML = '';
+
+        // Add tags to dropdown, excluding special tags
+        Object.keys(allTags).forEach(tagName => {
+            if (tagName !== "📁 All" && tagName !== "📂 Other") {
+                const option = document.createElement('option');
+                option.value = tagName;
+                option.textContent = tagName;
+
+                // Set current tag as selected
+                if (tagName === currentTag) {
+                    option.selected = true;
+                }
+
+                tagSelect.appendChild(option);
+            }
+        });
+
+        // If no tags available or current tag is special, add a default option
+        if (tagSelect.children.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No tags available';
+            tagSelect.appendChild(option);
+        }
+    } catch (error) {
+        console.error('Error loading tags for dropdown:', error);
+        const tagSelect = panel.querySelector(`#itemSettings-tagSelect-${safeId}`);
+        tagSelect.innerHTML = '<option value="">Error loading tags</option>';
+    }
+}
+
 async function loadItemSettings(item, panel, safeId) {
     try {
         const result = await chrome.runtime.sendMessage({
@@ -549,98 +590,12 @@ async function loadItemSettings(item, panel, safeId) {
             savedAt: item.savedAt
         });
 
-        if (result.ok && result.settings) {
-            const settings = result.settings;
-
-            // Load priority
-            const priorityCheckbox = panel.querySelector(`#itemSettings-priority-${safeId}`);
-            if (priorityCheckbox) priorityCheckbox.checked = settings.priority || false;
-
-            // Load notes
-            const notesTextarea = panel.querySelector(`#itemSettings-notes-${safeId}`);
-            if (notesTextarea) notesTextarea.value = settings.notes || '';
-
-            // Load custom title
-            const customTitleInput = panel.querySelector(`#itemSettings-customTitle-${safeId}`);
-            if (customTitleInput && settings.customTitle) {
-                customTitleInput.value = settings.customTitle;
-            }
-
-            // Load additional tags
-            const tagsInput = panel.querySelector(`#itemSettings-tags-${safeId}`);
-            if (tagsInput && settings.additionalTags) {
-                tagsInput.value = settings.additionalTags.join(', ');
-            }
-        }
+        // No settings to load for this simplified panel
     } catch (error) {
         console.error('Error loading item settings:', error);
     }
 }
 
-async function saveItemSettings(savedAt, tag, safeId) {
-    try {
-        const priority = document.querySelector(`#itemSettings-priority-${safeId}`).checked;
-        const notes = document.querySelector(`#itemSettings-notes-${safeId}`).value;
-        const customTitle = document.querySelector(`#itemSettings-customTitle-${safeId}`).value;
-        const tagsInput = document.querySelector(`#itemSettings-tags-${safeId}`).value;
-        const additionalTags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-
-        // Handle regex pattern
-        const regexToggle = document.querySelector(`#itemSettings-regexToggle-${safeId}`).checked;
-        const regexPattern = regexToggle ? document.querySelector(`#itemSettings-regex-${safeId}`).value.trim() : '';
-
-        const result = await chrome.runtime.sendMessage({
-            type: "saveItemSettings",
-            savedAt: savedAt,
-            settings: {
-                priority,
-                notes,
-                customTitle,
-                additionalTags
-            }
-        });
-
-        // If regex pattern is provided, add it as a classification rule
-        if (regexPattern && result.ok) {
-            const regexResult = await chrome.runtime.sendMessage({
-                type: "addCustomRule",
-                tagName: tag,
-                urlPatterns: [regexPattern],
-                titleKeywords: []
-            });
-
-            if (!regexResult.ok) {
-                console.error('Failed to add regex rule:', regexResult.error);
-            }
-        }
-
-        if (result.ok) {
-            // Close the settings panel
-            const panel = document.querySelector(`#itemSettings-priority-${safeId}`).closest('.item-settings-panel');
-            if (panel) {
-                panel.classList.remove('active');
-            }
-
-            // Refresh the view to show any title changes
-            render(currentTag);
-
-            // Show success message
-            const message = regexPattern ?
-                'Settings saved and URL pattern rule added!' :
-                'Settings saved!';
-
-            // Simple toast instead of alert
-            setTimeout(() => {
-                console.log(message);
-            }, 100);
-        } else {
-            alert('Failed to save settings: ' + (result.error || 'Unknown error'));
-        }
-    } catch (error) {
-        console.error('Error saving item settings:', error);
-        alert('Error saving settings');
-    }
-}
 
 function setupActionButtons() {
     // Update action buttons
