@@ -1,14 +1,40 @@
-# TagTab Browser Extension
+<div align="center">
 
-A browser extension that provides OneTab-style functionality with tag organization. Save and close all your open tabs into named tags, then restore them later when needed.
+<img src="https://eyal.cc/wp-content/uploads/2025/11/Untitled-design-16.png" alt="TagTab Logo" width="100"/>
 
-## Overview
+# TagTab - Organize your tabs for once!
 
-TagTab allows you to:
-- Save all open tabs in the current window or all windows into a named tag
-- Organize your saved tabs by categories using custom tag names
-- Restore individual tabs or entire tag groups
-- Replace your new tab page with a tag management interface
+**Transform tab chaos into organized productivity**
+
+<img src="https://eyal.cc/wp-content/uploads/2025/11/Generated-Image-November-20-2025-8_41PM.png" alt="TagTab Cover" width="100%"/>
+
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Available%20Soon-brightgreen)](https://chrome.google.com/webstore)
+[![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red)]()
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue)](https://developer.chrome.com/docs/extensions/mv3/)
+
+*Group tabs by project, save workflows, and switch between tasks effortlessly.*
+
+</div>
+
+## ✨ What is TagTab?
+
+TagTab is a powerful browser extension that transforms how you manage tabs. Like OneTab but with advanced organization features, TagTab lets you:
+
+🏷️ **Save & Organize** - Group tabs by project, topic, or workflow
+🔄 **Quick Restore** - Get back to your saved work instantly
+🎯 **Stay Focused** - Reduce tab clutter and browser memory usage
+🌙 **Dark Theme** - Beautiful interface that works day or night
+🤖 **Auto-Classification** - Smart rules to organize tabs automatically
+
+## 🚀 Key Features
+
+- **📁 Hierarchical Tags** - Create nested tag structures for complex organization
+- **🔍 Smart Classification** - Auto-classify tabs based on URL patterns and titles
+- **⚡ Quick Access** - Save tabs with one click from the browser toolbar
+- **🔄 Flexible Restore** - Restore individual tabs or entire groups
+- **🆕 New Tab Override** - Replace new tab page with your tag manager
+- **💾 Local Storage** - Keep your data private and secure
+- **🎨 Modern UI** - Clean, intuitive interface with dark theme support
 
 ## Project Structure
 
@@ -28,65 +54,108 @@ tagtab-ext/
     └── icon128.png
 ```
 
-## Installation
+## 📥 Installation
 
-### Development Installation
+### Chrome Web Store (Recommended)
+*Coming soon! The extension is being reviewed for publication.*
 
-1. **Load as unpacked extension:**
-   - Open Chrome/Edge and navigate to `chrome://extensions/`
+### Manual Installation (Development)
+
+1. **Download the Extension**
+   - Download or clone this repository
+   - Navigate to the `tagtab-ext` folder
+
+2. **Load in Chrome/Edge**
+   - Open `chrome://extensions/` in your browser
    - Enable "Developer mode" (toggle in top right)
-   - Click "Load unpacked"
-   - Select the `tagtab-ext` folder
+   - Click "Load unpacked" and select the `tagtab-ext` folder
 
-2. **Verify installation:**
-   - The TagTab icon should appear in your browser toolbar
-   - Your new tab page should now show the TagTab interface
+3. **You're Ready!**
+   - TagTab icon appears in your toolbar
+   - New tab page is replaced with TagTab interface
 
-### Production Installation
+## 🎯 How to Use
 
-Package the extension by creating a ZIP file of the `tagtab-ext` directory and upload to the Chrome Web Store or Edge Add-ons store.
+### 💾 Saving Tabs
 
-## Usage
+<details>
+<summary><strong>🆕 Create New Tag</strong></summary>
 
-### Saving Tabs
+1. Click the TagTab icon in your toolbar
+2. Click **"+ Create new tag"**
+3. Enter a descriptive name (e.g. "Research Project", "Shopping")
+4. Your tabs are instantly saved and organized!
 
-1. **Using existing tags:**
-   - Click the TagTab icon in the toolbar
-   - Select an existing tag from the list
-   - All tabs in the current window will be saved and closed
+</details>
 
-2. **Creating new tags:**
-   - Click the TagTab icon in the toolbar
-   - Click "+ Create new tag"
-   - Enter a tag name
-   - All tabs will be saved under the new tag
+<details>
+<summary><strong>📁 Save to Existing Tag</strong></summary>
 
-3. **Options:**
-   - Check "Capture all windows" to save tabs from all browser windows
-   - Unchecked (default): saves only tabs from the current window
+1. Click the TagTab icon
+2. Choose from your existing tags
+3. Tabs are added to the selected category
+4. Option: Check **"Capture all windows"** to save tabs from all browser windows
 
-### Managing Saved Tabs
+</details>
 
-1. **Access the manager:**
-   - Open a new tab (automatically shows TagTab interface)
-   - Or click "Manage" in the popup
+<details>
+<summary><strong>🤖 Auto-Classification</strong></summary>
 
-2. **Restore tabs:**
-   - Click individual tab links to restore single tabs
-   - Click "Restore All" to open all tabs in a tag group
-   - Use "Delete" to remove individual tabs from a tag
+1. Set up classification rules in Settings
+2. Create patterns like `*github.com*` for development tabs
+3. Use the **"Auto-classify tabs"** button
+4. Watch as tabs organize themselves automatically!
 
-3. **Organize tags:**
-   - Tags are automatically sorted alphabetically
-   - Delete entire tags using the tag management controls
+</details>
 
-## Technical Details
+### 🔄 Managing Your Tabs
 
-### Permissions
+<details>
+<summary><strong>📂 Browse Your Collection</strong></summary>
 
-- `tabs`: Required to read, create, and close browser tabs
-- `storage`: Required to persist saved tabs and tag data
-- `<all_urls>`: Required to access favicons and tab content
+- **New Tab Page**: Automatically shows your TagTab manager
+- **Or Click "Manage"** in the popup for quick access
+- **Hierarchical View**: See parent/child tag relationships
+
+</details>
+
+<details>
+<summary><strong>⚡ Restore & Access</strong></summary>
+
+- **Single Tab**: Click any tab to restore it instantly
+- **Restore All**: Open entire tag groups at once
+- **Individual Settings**: Configure restore behavior per tab
+
+</details>
+
+<details>
+<summary><strong>🎛️ Organize & Customize</strong></summary>
+
+- **Delete Individual Tabs**: Remove items you no longer need
+- **Tag Management**: Create, edit, and delete tag groups
+- **Classification Rules**: Set up smart auto-organization
+- **Dark/Light Theme**: Match your browser preferences
+
+</details>
+
+## 🛠️ Technical Details
+
+### Browser Compatibility
+- ✅ **Chrome** (Recommended)
+- ✅ **Microsoft Edge** (Chromium-based)
+- ✅ **Brave Browser**
+- ✅ **Other Chromium browsers**
+
+### Privacy & Security
+- 🔒 **Local Storage Only** - Your data never leaves your browser
+- 🚫 **No Cloud Sync** - Complete privacy protection
+- ⚡ **Manifest V3** - Latest security standards
+- 🛡️ **Minimal Permissions** - Only what's needed for functionality
+
+### Required Permissions
+- **`tabs`** - Read, create, and close browser tabs
+- **`storage`** - Store your saved tabs locally
+- **`activeTab`** - Access current tab for saving
 
 ### Storage Schema
 
@@ -122,43 +191,26 @@ The extension uses Chrome's local storage with the following structure:
 - Microsoft Edge (Chromium-based)
 - Other Chromium-based browsers
 
-## Development
+---
 
-### File Overview
+<div align="center">
 
-1. **manifest.json**: Extension configuration
-2. **background.js**: Core functionality and API
-3. **popup.html/js/css**: Toolbar popup interface
-4. **pages.html/js/css**: Full management interface
-5. **icons/**: Extension icons in multiple sizes
+## 💝 Made with Love
 
-### Testing
+**TagTab** is crafted with care to make your browsing experience more organized and productive.
 
-Test the extension by:
-1. Opening multiple tabs
-2. Using the popup to save them to a tag
-3. Checking the new tab page to verify tabs were saved
-4. Restoring individual or all tabs
-5. Testing with multiple windows if needed
+[⭐ Star this project](https://github.com/eavitan/TagTab) • [🐛 Report Issues](https://github.com/eavitan/TagTab/issues) • [💡 Feature Requests](https://github.com/eavitan/TagTab/issues)
 
-### Debugging
+### 🚀 Coming Soon
+- **Cloud Sync** - Access your tags across devices
+- **Smart Suggestions** - AI-powered tag recommendations
+- **Team Sharing** - Collaborate on tag collections
+- **Import/Export** - Backup and restore your data
 
-- Use Chrome DevTools on the popup and pages
-- Check the service worker in `chrome://extensions/` → Details → Inspect views: service worker
-- Monitor console logs for errors
+---
 
-## Features
+**Transform your browsing workflow today with TagTab!**
 
-- **OneTab-style functionality**: Save and close all tabs at once
-- **Tag organization**: Group saved tabs by custom categories
-- **Selective restoration**: Restore individual tabs or entire groups
-- **New tab integration**: Replace new tab page with tag management
-- **Favicon preservation**: Maintains website icons for saved tabs
-- **Multi-window support**: Option to capture tabs from all windows
-- **Persistent storage**: Saves data locally in the browser
+*No more tab chaos. No more lost work. Just organized productivity.*
 
-## Limitations
-
-- Does not save `chrome://` or `about:blank` pages (browser security restriction)
-- Requires manual tag naming (no auto-categorization)
-- Local storage only (no cloud sync)
+</div>
