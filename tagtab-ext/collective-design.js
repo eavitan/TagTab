@@ -214,14 +214,14 @@ function createControls(tag) {
     controls.style.justifyContent = "flex-end";
 
     const restoreAllBtn = document.createElement("button");
-    restoreAllBtn.innerHTML = "🔄";
+    restoreAllBtn.innerHTML = "Restore all";
     restoreAllBtn.title = "Restore all";
     restoreAllBtn.addEventListener('click', async () => {
         await chrome.runtime.sendMessage({ type: "restoreAll", tag });
     });
 
     const deleteTagBtn = document.createElement("button");
-    deleteTagBtn.innerHTML = "🗑️";
+    deleteTagBtn.innerHTML = "Clear all tags";
 
     // Handle special tags differently (exact same as master)
     if (tag === "📁 All") {
@@ -259,7 +259,7 @@ function createControls(tag) {
     let syncConditionsBtn = null;
     if (tag !== "📁 All" && tag !== "📂 Other") {
         syncConditionsBtn = document.createElement("button");
-        syncConditionsBtn.innerHTML = "⚡";
+        syncConditionsBtn.innerHTML = "Sync conditions";
         syncConditionsBtn.title = "Sync conditions";
         syncConditionsBtn.addEventListener('click', async () => {
             if (!confirm(`Sync conditions for "${tag}"? This will import matching pages from other tags based on the current classification rules.`)) return;

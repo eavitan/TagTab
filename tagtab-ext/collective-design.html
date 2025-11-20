@@ -33,6 +33,7 @@
             font-size: 14px;
             color: #2d3436;
             font-weight: 500;
+            display: none;
         }
 
         .header-top a {
@@ -79,7 +80,7 @@
         /* Hero Section */
         .hero {
             text-align: center;
-            padding: 80px 40px 40px;
+            padding: 80px 0px 0px 0px;
             max-width: 800px;
             margin: 0 auto;
         }
@@ -88,7 +89,7 @@
             font-size: 48px;
             font-weight: 500;
             line-height: 1.1;
-            margin-bottom: 48px;
+            margin-bottom: 0;
             letter-spacing: -0.025em;
             color: #E9EBEA;
         }
@@ -106,7 +107,7 @@
             gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
-            padding: 40px 40px 60px;
+            padding: 20px;
             max-width: 1000px;
             margin: 0 auto;
         }
@@ -231,7 +232,7 @@
         }
 
         .footer-links {
-            display: grid;
+            display: none;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 40px;
             margin-bottom: 80px;
@@ -275,7 +276,7 @@
         .collective-text {
             font-size: clamp(120px, 20vw, 300px);
             font-weight: 500;
-            line-height: 0.8;
+            line-height: 1.2;
             background: linear-gradient(90deg, #FFE09E 0%, #FFCAA6 20%, #E9EBEA 40%, #E9EBEA 60%, #D8C1FF 80%, #C8B5FF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -460,6 +461,16 @@
             background: rgba(255, 59, 48, 0.3);
         }
 
+        .controls button {
+            background: transparent;
+            color: white;
+            border: 0px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 18px;
+        }
         /* Responsive */
         @media (max-width: 768px) {
             .header-nav {
@@ -527,6 +538,8 @@
                 height: 24px;
             }
         }
+
+        .controls{display: none;}
     </style>
 </head>
 <body>
@@ -547,8 +560,7 @@
 
     <!-- Hero Section -->
     <section class="hero">
-        <h1>A growing collection<br>of your saved pages</h1>
-        <p class="disclaimer">Organize your tabs with smart tags and filters</p>
+        <h1>Your Tabs <br />In One Place</h1>
     </section>
 
     <!-- Category Navigation -->
@@ -559,9 +571,9 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="featured-item">
-            <div class="item-preview">
+            <!-- <div class="item-preview">
                 <img src="data:image/svg+xml,%3Csvg width='400' height='300' viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%23101211'/%3E%3Cg transform='translate(50, 50)'%3E%3Crect x='0' y='0' width='300' height='40' fill='%23E9EBEA' rx='20'/%3E%3Ctext x='20' y='25' font-family='Inter, sans-serif' font-size='14' fill='%23101211'%3E💻 GitHub - React Documentation%3C/text%3E%3Crect x='0' y='50' width='300' height='40' fill='%23E8E5FF' rx='20'/%3E%3Ctext x='20' y='75' font-family='Inter, sans-serif' font-size='14' fill='%23101211'%3E🎨 Figma - Design System%3C/text%3E%3Crect x='0' y='100' width='300' height='40' fill='%23D4D0F0' rx='20'/%3E%3Ctext x='20' y='125' font-family='Inter, sans-serif' font-size='14' fill='%23101211'%3E📚 MDN Web Docs%3C/text%3E%3Ctext x='150' y='170' text-anchor='middle' font-family='Inter, sans-serif' font-size='12' fill='%23888'%3EYour saved pages as cards%3C/text%3E%3C/g%3E%3C/svg%3E" alt="TagTab Interface Preview">
-            </div>
+            </div> -->
             <div class="item-actions">
                 <div class="item-title">TagTab Extension</div>
                 <div class="action-buttons">

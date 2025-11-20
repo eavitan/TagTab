@@ -25,6 +25,9 @@ https://chrome.google.com/webstore/devconsole/0c1562bf-44df-476b-a425-0703d97a72
 - Support URL: Optional
 - Official website association via Google Search Console
 
+## Image Generation for Screenshots
+AI Studio Prompt: https://aistudio.google.com/prompts/1sUbk5fzgwzcddxOl9lWcTOTGOLsd_fc6
+
 ## Next Steps
 1. Create screenshots showing extension functionality
 2. Finalize store description text
