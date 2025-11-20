@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://eyal.cc/wp-content/uploads/2025/11/tagtab-logo.png" alt="TagTab Logo" width="100"/>
+<img src="https://eyal.cc/wp-content/uploads/2025/11/tagtab-logo-transparent.png" alt="TagTab Logo" width="100"/>
 
 # TagTab - Organize your tabs for once!
 
