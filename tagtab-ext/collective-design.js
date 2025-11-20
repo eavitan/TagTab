@@ -445,7 +445,7 @@ function toggleItemSettings(row, item, tag) {
             <div class="settings-group full-width">
                 <label for="itemSettings-regex-${safeId}">URL Pattern Rule</label>
                 <input type="text" id="itemSettings-regex-${safeId}" placeholder="Enter URL pattern">
-                <div class="regex-help">Create automatic classification rule for similar URLs</div>
+                <div class="regex-help">Create automatic classification rule for similar URLs. Use * as wildcard (e.g., *github.com* matches any GitHub URL)</div>
                 <div style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
                     <select id="itemSettings-tagSelect-${safeId}" style="flex: 1; padding: 6px 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; color: #E9EBEA; font-size: 12px;">
                         <option value="">Loading tags...</option>
@@ -553,7 +553,7 @@ async function populateTagDropdown(panel, safeId, currentTag) {
         tagSelect.innerHTML = '';
 
         // Add tags to dropdown, excluding special tags
-        Object.keys(allTags).forEach(tagName => {
+        allTags.forEach(tagName => {
             if (tagName !== "📁 All" && tagName !== "📂 Other") {
                 const option = document.createElement('option');
                 option.value = tagName;
