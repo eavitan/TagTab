@@ -1,41 +1,17 @@
-# Ignore all files in root except README.md and tagtab-ext/
-*.md
-!README.md
-*.png
-*.js
-*.json
-*.zip
-*.html
-.DS_Store
-node_modules/
-.idea/
-.claude/
-tasks.md
-debug-tags.js
-examine-classification.js
-hierarchical-design.md
-hierarchical-tags-guide.md
-index.js
-package-lock.json
-package.json
-screenshot-capture.js
-screenshot-script.js
-tagtab-extension.zip
-test-*.md
-test-*.js
-test-*.html
-*.log
-CLAUDE.md
-DEPLOYMENT.md
-TECHNICAL_SPECIFICATION.md
-classification-error.png
-collective-shop-design.png
-collective-shop-fullpage.png
-collective-shop-viewport.png
-collective-website-screenshot.png
-Generated*.png
-versions/
+# Whitelist approach - ignore everything except what we want to keep
 
-# Keep essential directories and files
-!tagtab-ext/
+# Ignore everything by default
+*
+
+# Keep only these essential files and directories
+!README.md
 !.gitignore
+!tagtab-ext/
+!tagtab-ext/**
+
+# Make sure to ignore OS and IDE files even if they're in kept directories
+.DS_Store
+.idea/
+.vscode/
+*.log
+node_modules/
