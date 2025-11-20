@@ -553,7 +553,8 @@ async function populateTagDropdown(panel, safeId, currentTag) {
         tagSelect.innerHTML = '';
 
         // Add tags to dropdown, excluding special tags
-        allTags.forEach(tagName => {
+        allTags.forEach(tagInfo => {
+            const tagName = tagInfo.path || tagInfo; // Handle both object and string formats
             if (tagName !== "📁 All" && tagName !== "📂 Other") {
                 const option = document.createElement('option');
                 option.value = tagName;
