@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "TagTab (OneTab-style with Tags)",
-  "description": "Save & close all tabs into a named tag via the toolbar dropdown. View saved pages grouped by tag.",
+  "name": "TagTab - Organize your tabs for once!",
+  "description": "Transform tab chaos into organized productivity! Group tabs by project, save workflows, and switch between tasks effortlessly.",
   "version": "1.0.0",
   "permissions": [
     "tabs",
