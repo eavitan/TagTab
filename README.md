@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="https://eyal.cc/wp-content/uploads/2025/11/Untitled-design-16.png" alt="TagTab Logo" width="100"/>
+<img src="https://eyal.cc/wp-content/uploads/2025/11/tagtab-logo.png" alt="TagTab Logo" width="100"/>
 
 # TagTab - Organize your tabs for once!
 
 **Transform tab chaos into organized productivity**
 
-<img src="https://eyal.cc/wp-content/uploads/2025/11/Generated-Image-November-20-2025-8_41PM.png" alt="TagTab Cover" width="100%"/>
+<img src="https://eyal.cc/wp-content/uploads/2025/11/tagtab-cover-1.png" alt="TagTab Cover" width="100%"/>
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Available%20Soon-brightgreen)](https://chrome.google.com/webstore)
 [![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red)]()
