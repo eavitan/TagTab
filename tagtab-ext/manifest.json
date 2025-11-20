@@ -5,7 +5,8 @@
   "version": "1.0.0",
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "activeTab"
   ],
   "action": {
     "default_title": "TagTab",
@@ -26,9 +27,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "host_permissions": [
-    "<all_urls>"
-  ],
   "options_page": "collective-design.html",
   "chrome_url_overrides": {
     "newtab": "collective-design.html"
