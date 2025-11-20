@@ -15,3 +15,6 @@
 .vscode/
 *.log
 node_modules/
+
+# Ignore development files within the extension directory
+tagtab-ext/CLAUDE.md
